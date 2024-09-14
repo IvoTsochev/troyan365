@@ -27,7 +27,7 @@ const RootLayout = () => {
 
   return (
     <GlobalProvider>
-      <Stack initialRouteName="(tabs)">
+      <Stack>
         <Stack.Screen
           name="index"
           options={{

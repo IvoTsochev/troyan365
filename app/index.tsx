@@ -12,7 +12,7 @@ export default function TabLayout() {
 
   return (
     <SafeAreaView className="bg-primary h-full flex-1 justify-center flex-row p-10">
-      <ActivityIndicator size="large" color="#00ff00" />
+      <ActivityIndicator size="large" color="#FFA001" />
     </SafeAreaView>
   );
 }

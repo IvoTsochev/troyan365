@@ -1,17 +1,40 @@
-import { View, FlatList, TouchableOpacity, Image } from "react-native";
-import React from "react";
+import {
+  View,
+  FlatList,
+  TouchableOpacity,
+  Image,
+  Text,
+  ScrollView,
+  Alert,
+  Pressable,
+} from "react-native";
+import React, { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import EmptyState from "../../components/EmptyState";
-import { getUserPosts, signOut } from "../../lib/appwrite";
+import {
+  getCurrentUser,
+  getUserPosts,
+  signIn,
+  signOut,
+} from "../../lib/appwrite";
 import useAppwrite from "../../lib/useAppwrite";
 import VideoCard from "../../components/VideoCard";
 import { useGlobalContext } from "../../context/GlobalProvider";
 import { icons } from "../../constants";
 import InfoBox from "../../components/InfoBox";
-import { router } from "expo-router";
+import { Link, router } from "expo-router";
+import { images } from "../../constants";
+import CustomButton from "../../components/CustomButton";
+import FormField from "../../components/FormField";
 
 const Profile = () => {
+  const [form, setForm] = useState({
+    email: "",
+    password: "",
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const { user, setUser, setIsLogged } = useGlobalContext();
   const { data: posts } = useAppwrite(() => getUserPosts(user?.$id));
 
@@ -20,8 +43,46 @@ const Profile = () => {
     setUser(null);
     setIsLogged(false);
 
-    router.replace("/sign-in");
+    router.replace("/home");
   };
+
+  const submit = async () => {
+    if (!form.email || !form.password) {
+      Alert.alert("Error", "Please fill in all fields");
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      await signIn(form.email, form.password);
+      const result = await getCurrentUser();
+      setUser(result);
+      setIsLogged(true);
+
+      router.replace("/home");
+    } catch (error: any) {
+      Alert.alert("Error", error.message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (!user) {
+    return (
+      <SafeAreaView className="bg-primary h-full justify-center items-center">
+        <Text className="text-white text-xl mb-4">
+          Не сте влезли в профиле си
+        </Text>
+        <CustomButton
+          title="Влез"
+          handlePress={() => router.push("/sign-in")}
+          containerStyles="w-1/2"
+        />
+      </SafeAreaView>
+    );
+  }
+
+  console.log("what is posts", posts);
 
   return (
     <SafeAreaView className="bg-primary h-full">
@@ -57,13 +118,13 @@ const Profile = () => {
             <View className="mt-5 flex-row">
               <InfoBox
                 title={posts?.length.toString() || "0"}
-                subtitle="Posts"
+                subtitle="Постове"
                 containerStyle="mr-10"
                 titleStyles="text-xl"
               />
               <InfoBox
                 title="1.2k"
-                subtitle="Followers"
+                subtitle="Последователи"
                 titleStyles="text-xl"
               />
             </View>
@@ -71,8 +132,8 @@ const Profile = () => {
         )}
         ListEmptyComponent={() => (
           <EmptyState
-            title="No Videos Found"
-            subtitle="No videos found for the search query"
+            title="Няма публикации"
+            subtitle="Все още нямате публикации."
           />
         )}
       />

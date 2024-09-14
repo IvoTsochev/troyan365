@@ -35,6 +35,7 @@ type PropTypes = {
 
 const TrendingItem = ({ activeItem, item }: PropTypes) => {
   const [play, setPlay] = useState(false);
+  console.log("what is item? ==>>>", item);
 
   return (
     <Animatable.View
@@ -59,20 +60,20 @@ const TrendingItem = ({ activeItem, item }: PropTypes) => {
         />
       ) : (
         <TouchableOpacity
-          className="relative justify-center items-center"
+          className="relative justify-center items-center border-2 border-white/20"
           activeOpacity={0.7}
           onPress={() => setPlay(true)}
         >
           <ImageBackground
-            source={{ uri: item.thumbnail }}
+            source={{ uri: item.thumbnail_url }}
             className="w-52 h-72 rounded-[35px] my-5 overflow-hidden shadow-lg shadow-black/40"
             resizeMode="cover"
           />
-          <Image
+          {/* <Image
             source={icons.play}
             className="w-12 h-12 absolute"
             resizeMode="contain"
-          />
+          /> */}
         </TouchableOpacity>
       )}
     </Animatable.View>
