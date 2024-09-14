@@ -24,7 +24,7 @@ const EmptyState = ({ title, subtitle }: PropTypes) => {
       <Text className="font-pmedium text-sm text-gray-100">{subtitle}</Text>
 
       <CustomButton
-        title="Create video"
+        title="Създай обява"
         handlePress={() => router.push("/create")}
         containerStyles="w-full my-5"
       />

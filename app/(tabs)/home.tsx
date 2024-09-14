@@ -37,7 +37,7 @@ const Home = () => {
             <View className="justify-between items-start flex-row mb-6">
               <View>
                 <Text className="font-pmedium text-sm text-gray-100">
-                  Welcome Back,
+                  Добре дошъл
                 </Text>
                 <Text className="text-2xl font-psemibold text-white">
                   {user?.username}
@@ -56,7 +56,7 @@ const Home = () => {
 
             <View className="w-full flex-1 pt-5 pb-8">
               <Text className="text-gray-100 text-lg font-pregular mb-3">
-                Latest Videos
+                Последни публикации
               </Text>
 
               <Trending posts={latestPosts ?? []} />
@@ -65,8 +65,8 @@ const Home = () => {
         )}
         ListEmptyComponent={() => (
           <EmptyState
-            title="No Videos Found"
-            subtitle="Be the first one to upload a video"
+            title="Няма публикувани реклами"
+            subtitle="Все още няма публикувани реклами. Може би е време да публикувате първата си?"
           />
         )}
         refreshControl={
