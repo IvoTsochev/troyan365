@@ -82,8 +82,6 @@ const Profile = () => {
     );
   }
 
-  console.log("what is posts", posts);
-
   return (
     <SafeAreaView className="bg-primary h-full">
       <FlatList

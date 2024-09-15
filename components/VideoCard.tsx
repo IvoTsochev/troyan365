@@ -1,10 +1,20 @@
 import { useState } from "react";
-import { Alert, Image, Text, TouchableOpacity, View } from "react-native";
+import {
+  Alert,
+  Image,
+  Text,
+  TouchableOpacity,
+  View,
+  Vibration,
+} from "react-native";
 import React from "react";
 import { icons } from "../constants";
 import { ResizeMode, Video } from "expo-av";
 import { Menu, Provider } from "react-native-paper";
 import { deleteListing } from "../lib/appwrite";
+import { useGlobalContext } from "../context/GlobalProvider";
+import { HeartIcon } from "react-native-heroicons/outline";
+import * as Haptics from "expo-haptics";
 
 type PropTypes = {
   video: {
@@ -33,7 +43,12 @@ const VideoCard = ({
   const [menuVisible, setMenuVisible] = useState(false);
   const [menuAnchor, setMenuAnchor] = useState({ x: 0, y: 0 });
 
-  const openMenu = () => setMenuVisible(true);
+  const { user } = useGlobalContext();
+
+  const openMenu = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    setMenuVisible(true);
+  };
   const closeMenu = () => setMenuVisible(false);
 
   const handleDelete = () => {
@@ -90,28 +105,34 @@ const VideoCard = ({
             </View>
           </View>
 
-          <TouchableOpacity
-            className="pt-2"
-            onPress={openMenu}
-            onLayout={(event) => {
-              const { x, y } = event.nativeEvent.layout;
-              setMenuAnchor({ x, y });
-            }}
-          >
-            <Image
-              source={icons.menu}
-              className="w-5 h-5"
-              resizeMode="contain"
-            />
+          <TouchableOpacity className="pt-2 mr-3">
+            <HeartIcon className="w-5 h-5 pt-2" color="red" />
           </TouchableOpacity>
+
+          {user?.$id === creatorId && (
+            <TouchableOpacity
+              className="pt-2"
+              onPress={openMenu}
+              onLayout={(event) => {
+                const { x, y } = event.nativeEvent.layout;
+                setMenuAnchor({ x, y });
+              }}
+            >
+              <Image
+                source={icons.menu}
+                className="w-5 h-5"
+                resizeMode="contain"
+              />
+            </TouchableOpacity>
+          )}
 
           <Menu
             visible={menuVisible}
             onDismiss={closeMenu}
             anchor={{ x: menuAnchor.x, y: menuAnchor.y + 10 }}
           >
-            <Menu.Item onPress={handleDelete} title="Изтрии" />
             <Menu.Item onPress={handleMarkInactive} title="Де-активирай" />
+            <Menu.Item onPress={handleDelete} title="Изтрии" />
           </Menu>
         </View>
 
