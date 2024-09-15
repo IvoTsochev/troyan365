@@ -35,7 +35,6 @@ type PropTypes = {
 
 const TrendingItem = ({ activeItem, item }: PropTypes) => {
   const [play, setPlay] = useState(false);
-  console.log("what is item? ==>>>", item);
 
   return (
     <Animatable.View

@@ -59,7 +59,6 @@ const Create = () => {
     setUploading(true);
 
     try {
-      console.log("Form Data:", { ...form, userId: user.$id });
       await createListing({ ...form, userId: user.$id });
 
       Alert.alert("Success", "Video uploaded successfully");
