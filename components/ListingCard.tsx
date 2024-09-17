@@ -11,39 +11,30 @@ import React from "react";
 import { icons } from "../constants";
 import { ResizeMode, Video } from "expo-av";
 import { Menu, Provider } from "react-native-paper";
-import { deleteListing } from "../lib/appwrite";
+// import { deleteListing } from "../lib/appwrite";
 import { useGlobalContext } from "../context/GlobalProvider";
 import { HeartIcon } from "react-native-heroicons/outline";
 import * as Haptics from "expo-haptics";
+import { getImageUrl } from "../lib/supabase";
 
 type PropTypes = {
-  video: {
+  listing: {
     title: string;
     thumbnail_url: string;
     video: string;
-    $id: string;
-    creator: {
-      username: string;
-      avatar: string;
-      $id: string;
-    };
+    id: string;
+    creator_id: string;
   };
 };
 
-const VideoCard = ({
-  video: {
-    title,
-    thumbnail_url,
-    video,
-    $id: listingId,
-    creator: { username, avatar, $id: creatorId },
-  },
+const ListingCard = ({
+  listing: { title, thumbnail_url, video, id: listingId, creator_id },
 }: PropTypes) => {
   const [play, setPlay] = useState(false);
   const [menuVisible, setMenuVisible] = useState(false);
   const [menuAnchor, setMenuAnchor] = useState({ x: 0, y: 0 });
 
-  const { user } = useGlobalContext();
+  const { loggedUser } = useGlobalContext();
 
   const openMenu = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -61,7 +52,7 @@ const VideoCard = ({
           text: "Изтрии",
           onPress: async () => {
             try {
-              await deleteListing(listingId);
+              // await deleteListing(listingId);
             } catch (error) {
               console.error("Error deleting listing:", error);
             }
@@ -83,11 +74,11 @@ const VideoCard = ({
         <View className="flex-row gap-3 items-start">
           <View className="justify-center items-center flex-row flex-1">
             <View className="w-[46px] h-[46px] rounded-lg border border-secondary justify-center items-center p-0.5">
-              <Image
+              {/* <Image
                 source={{ uri: avatar }}
                 className="w-full h-full rounded-lg"
                 resizeMode="cover"
-              />
+              /> */}
             </View>
             <View className="justify-center flex-1 ml-3 gap-y-1">
               <Text
@@ -100,7 +91,7 @@ const VideoCard = ({
                 className="text-xs text-gray-100 font-pregular"
                 numberOfLines={1}
               >
-                {username}
+                {loggedUser?.email}
               </Text>
             </View>
           </View>
@@ -109,7 +100,7 @@ const VideoCard = ({
             <HeartIcon className="w-5 h-5 pt-2" color="red" />
           </TouchableOpacity>
 
-          {user?.$id === creatorId && (
+          {loggedUser?.id === creator_id && (
             <TouchableOpacity
               className="pt-2"
               onPress={openMenu}
@@ -158,7 +149,12 @@ const VideoCard = ({
             className="w-full h-60 rounded-xl mt-3 relative justify-center items-center border-2 border-white/20"
           >
             <Image
-              source={{ uri: thumbnail_url }}
+              source={{
+                uri: getImageUrl({
+                  bucketName: "listings_bucket",
+                  imagePath: thumbnail_url,
+                }),
+              }}
               className="w-full h-full rounded-xl mt-3"
               resizeMode="cover"
             />
@@ -169,4 +165,4 @@ const VideoCard = ({
   );
 };
 
-export default VideoCard;
+export default ListingCard;

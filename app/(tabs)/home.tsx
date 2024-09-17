@@ -1,37 +1,46 @@
-import { useState } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { View, Text, FlatList, Image, RefreshControl } from "react-native";
-import React from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
+// Components
 import SearchInput from "../../components/SearchInput";
-
-import { images } from "../../constants";
 import Trending from "../../components/Trending";
 import EmptyState from "../../components/EmptyState";
-import { getAllPosts, getLatestPosts } from "../../lib/appwrite";
-import useAppwrite from "../../lib/useAppwrite";
-import VideoCard from "../../components/VideoCard";
+import ListingCard from "../../components/ListingCard";
+// Constants
+import { images } from "../../constants";
+// Utils
 import { useGlobalContext } from "../../context/GlobalProvider";
+import { getLatestListings } from "../../lib/supabase";
 
 const Home = () => {
-  const { data: posts, refetch } = useAppwrite(getAllPosts);
-  const { data: latestPosts } = useAppwrite(getLatestPosts);
-
-  const { user } = useGlobalContext();
-
+  const [listingsData, setListingsData] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
 
-  const onRefresh = async () => {
-    setRefreshing(true);
-    await refetch();
-    setRefreshing(false);
+  const { loggedUser } = useGlobalContext();
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    const data = await getLatestListings();
+    if (data) {
+      setListingsData(data);
+    }
   };
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchData();
+    setRefreshing(false);
+  }, []);
 
   return (
     <SafeAreaView className="bg-primary h-full">
       <FlatList
-        data={posts}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <VideoCard video={item} />}
+        data={listingsData}
+        keyExtractor={(item) => item.listing_id}
+        renderItem={({ item }) => <ListingCard listing={item} />}
         ListHeaderComponent={() => (
           <View className="my-6 px-4 space-y-6">
             <View className="justify-between items-start flex-row mb-6">
@@ -40,7 +49,7 @@ const Home = () => {
                   Добре дошъл
                 </Text>
                 <Text className="text-2xl font-psemibold text-white">
-                  {user?.username}
+                  {loggedUser?.user_metadata.username}
                 </Text>
               </View>
               <View className="mt-1.5 ">
@@ -59,7 +68,7 @@ const Home = () => {
                 Последни публикации
               </Text>
 
-              <Trending posts={latestPosts ?? []} />
+              <Trending posts={listingsData ?? []} />
             </View>
           </View>
         )}
@@ -70,7 +79,11 @@ const Home = () => {
           />
         )}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={"#FF9C01"}
+          />
         }
       />
     </SafeAreaView>

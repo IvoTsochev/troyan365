@@ -15,16 +15,22 @@ import { icons } from "../../constants";
 import CustomButton from "../../components/CustomButton";
 import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
-import { createListing } from "../../lib/appwrite";
 import { useGlobalContext } from "../../context/GlobalProvider";
+import { createListing } from "../../lib/supabase";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+
+type ImageType = ImagePicker.ImagePickerAsset;
 
 const Create = () => {
-  const { user } = useGlobalContext();
+  const { loggedUser, session } = useGlobalContext();
   const [uploading, setUploading] = useState(false);
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<{
+    title: string;
+    thumbnail_image: ImageType | null;
+    phone_number1: string;
+  }>({
     title: "",
-    video: null,
-    thumbnail_url: null,
+    thumbnail_image: null,
     phone_number1: "",
   });
 
@@ -39,28 +45,31 @@ const Create = () => {
     });
 
     if (!result.canceled) {
-      if (selectType === "image") {
-        setForm({ ...form, thumbnail_url: result.assets[0] });
-      }
-      if (selectType === "video") {
-        console.log("video selected", result.assets[0]);
+      const pickedFile = result.assets[0]; // This contains uri, width, height, etc.
+      const fileName =
+        pickedFile.fileName || `${new Date().getTime()}_image.jpg`;
 
-        setForm({ ...form, video: result.assets[0] });
+      if (selectType === "image") {
+        setForm({
+          ...form,
+          thumbnail_image: { ...pickedFile, name: fileName },
+        });
       }
     }
   };
 
-  const submit = async () => {
+  const createListingHandler = async () => {
     if (!form.phone_number1 || !form.title) {
       Alert.alert("Error", "Please fill all fields");
       return;
     }
 
     setUploading(true);
-
     try {
-      await createListing({ ...form, userId: user.$id });
-
+      await createListing({
+        form,
+        userId: loggedUser?.id,
+      });
       Alert.alert("Success", "Video uploaded successfully");
       router.push("/home");
     } catch (error) {
@@ -69,18 +78,16 @@ const Create = () => {
     } finally {
       setForm({
         title: "",
-        video: null,
-        thumbnail_url: null,
+        thumbnail_image: null,
         phone_number1: "",
       });
-
       setUploading(false);
     }
   };
 
   return (
     <SafeAreaView className="bg-primary h-full">
-      <ScrollView className="px-4 my-6">
+      <KeyboardAwareScrollView className="px-4 my-6" extraHeight={120}>
         <Text className="text-2xl text-white font-psemibold">Качи обява</Text>
 
         <FormField
@@ -93,46 +100,18 @@ const Create = () => {
           }`}
         />
 
-        <View className="mt-7 space-y-2 ">
-          <Text className="text-base text-gray-100 font-pmedium">
-            Upload Video
-          </Text>
-          <TouchableOpacity
-            onPress={() => {
-              openPicker("video");
-            }}
-          >
-            {form.video ? (
-              <Video
-                source={{ uri: form.video.uri }}
-                className="w-full h-64 rounded-2xl"
-                resizeMode={ResizeMode.COVER}
-              />
-            ) : (
-              <View className="w-full h-40 px-4 bg-black-100 rounded-2xl justify-center items-center">
-                <View className="w-14 h-14 border border-dashed border-secondary-100 justify-center items-center">
-                  <Image
-                    source={icons.upload}
-                    resizeMode="contain"
-                    className="w-1/2 h-1/2"
-                  />
-                </View>
-              </View>
-            )}
-          </TouchableOpacity>
-        </View>
         <View className="mt-7 space-y-2">
           <Text className="text-base text-gray-100 font-pmedium">
-            Thumbnail Image
+            Главна снимка
           </Text>
           <TouchableOpacity
             onPress={() => {
               openPicker("image");
             }}
           >
-            {form.thumbnail_url ? (
+            {form.thumbnail_image ? (
               <Image
-                source={{ uri: form.thumbnail_url.uri }}
+                source={{ uri: form.thumbnail_image.uri }}
                 className="w-full h-64 rounded-2xl"
                 useNativeControls
                 resizeMode="cover"
@@ -146,7 +125,7 @@ const Create = () => {
                   className="w-5 h-5"
                 />
                 <Text className="text-sm text-gray-100 font-pmedium">
-                  Choose a file
+                  Избери снимка
                 </Text>
               </View>
             )}
@@ -161,12 +140,14 @@ const Create = () => {
           otherStyles="mt-7"
         />
         <CustomButton
-          title={user ? "Качи обява" : "Влез"}
-          handlePress={user ? submit : () => router.push("/sign-in")}
+          title={session ? "Качи обява" : "Влез"}
+          handlePress={
+            session ? createListingHandler : () => router.push("/sign-in")
+          }
           containerStyles="mt-7"
           isLoading={uploading}
         />
-      </ScrollView>
+      </KeyboardAwareScrollView>
     </SafeAreaView>
   );
 };

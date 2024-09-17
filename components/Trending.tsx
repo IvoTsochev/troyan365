@@ -1,14 +1,8 @@
 import { useState } from "react";
-import { Video, ResizeMode } from "expo-av";
+import { FlatList, Image, TouchableOpacity } from "react-native";
+// Utils
 import * as Animatable from "react-native-animatable";
-import {
-  FlatList,
-  Image,
-  ImageBackground,
-  TouchableOpacity,
-} from "react-native";
-
-import { icons } from "../constants";
+import { getImageUrl } from "../lib/supabase";
 
 const zoomIn = {
   0: {
@@ -34,47 +28,27 @@ type PropTypes = {
 };
 
 const TrendingItem = ({ activeItem, item }: PropTypes) => {
-  const [play, setPlay] = useState(false);
-
   return (
     <Animatable.View
       className="mr-5"
       animation={activeItem === item.$id ? zoomIn : zoomOut}
       duration={500}
     >
-      {play ? (
-        <Video
-          source={{ uri: item.video }}
-          className="w-52 h-72 rounded-[35px] mt-3 bg-white/10"
-          resizeMode={ResizeMode.CONTAIN}
-          useNativeControls
-          shouldPlay
-          onPlaybackStatusUpdate={(status) => {
-            console.log("what is status ==>>>", status);
-            if (status.didJustFinish) {
-              setPlay(false);
-            }
+      <TouchableOpacity
+        className="relative justify-center items-center border-2 border-white/20"
+        activeOpacity={0.7}
+      >
+        <Image
+          source={{
+            uri: getImageUrl({
+              bucketName: "listings_bucket",
+              imagePath: item.thumbnail_url,
+            }),
           }}
-          isMuted
+          className="w-52 h-72 bg-white/10"
+          resizeMode="cover"
         />
-      ) : (
-        <TouchableOpacity
-          className="relative justify-center items-center border-2 border-white/20"
-          activeOpacity={0.7}
-          onPress={() => setPlay(true)}
-        >
-          <ImageBackground
-            source={{ uri: item.thumbnail_url }}
-            className="w-52 h-72 rounded-[35px] my-5 overflow-hidden shadow-lg shadow-black/40"
-            resizeMode="cover"
-          />
-          {/* <Image
-            source={icons.play}
-            className="w-12 h-12 absolute"
-            resizeMode="contain"
-          /> */}
-        </TouchableOpacity>
-      )}
+      </TouchableOpacity>
     </Animatable.View>
   );
 };
@@ -91,7 +65,7 @@ const Trending = ({ posts }) => {
   return (
     <FlatList
       data={posts}
-      keyExtractor={(item) => item.$id}
+      keyExtractor={(item) => item.listing_id}
       renderItem={({ item }) => (
         <TrendingItem activeItem={activeItem} item={item} />
       )}
