@@ -197,7 +197,15 @@ export const createListing = async ({
 export const getLatestListings = async () => {
   const { data, error } = await supabase
     .from("listings")
-    .select("*")
+    .select(
+      `
+      *,
+      users (
+        email,
+        username
+      )
+    `
+    )
     .order("created_at", { ascending: false })
     .limit(10);
 
