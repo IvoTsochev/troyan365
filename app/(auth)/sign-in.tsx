@@ -27,7 +27,6 @@ const SignIn = () => {
 
     try {
       const { error, data } = await signIn(form.email, form.password);
-      console.log("what is sign in data", data);
 
       setLoggedUser(data.session?.user);
       setIsLogged(true);

@@ -31,7 +31,6 @@ const SignUp = () => {
         form.email,
         form.password
       );
-      console.log("what is result", user);
 
       setLoggedUser(user);
       setIsLogged(true);

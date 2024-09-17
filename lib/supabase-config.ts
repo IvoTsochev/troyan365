@@ -20,8 +20,6 @@ const supabaseAnonKey =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFlZWN1eGVzYm1paWRwdnljanFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjU5NTQ4MjEsImV4cCI6MjA0MTUzMDgyMX0.WHj3hqx9bZgHFPfVDjwa8jhqiZra5ESa9FK0zwiQG0U" ||
   "";
 
-console.log(supabaseUrl, supabaseAnonKey);
-
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
   auth: {
     storage: ExpoSecureStoreAdapter as any,

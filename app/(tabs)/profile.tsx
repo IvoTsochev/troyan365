@@ -15,15 +15,7 @@ import { signOut, getUserListings } from "../../lib/supabase";
 const Profile = () => {
   const { loggedUser, setLoggedUser, setIsLogged, session, setSession } =
     useGlobalContext();
-  console.log("loggedUser ==>>>", loggedUser);
   const { data: posts } = useSupabase(() => getUserListings(loggedUser?.id));
-  console.log("whjat is posts ==>>>", posts);
-  console.log("whjat is loggedUser?.id ==>>>", loggedUser?.id);
-
-  console.log(
-    "PROFILE loggedUser.app_metadata",
-    loggedUser?.user_metadata.username
-  );
 
   const logout = async () => {
     await signOut();

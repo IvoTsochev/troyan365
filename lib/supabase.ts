@@ -169,8 +169,6 @@ export const createListing = async ({
   // Upload the thumbnail image if present
   let uploadedThumbnail = null;
   if (form.thumbnail_image) {
-    console.log("what is form.thumbnail_image", form.thumbnail_image);
-
     uploadedThumbnail = await uploadFile({
       file: form.thumbnail_image,
       userId,
@@ -202,8 +200,6 @@ export const getLatestListings = async () => {
     .select("*")
     .order("created_at", { ascending: false })
     .limit(10);
-
-  console.log("data call ==>>>", data);
 
   if (error) {
     throw error;

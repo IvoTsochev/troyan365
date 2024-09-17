@@ -1,21 +1,15 @@
-import { useState } from "react";
-import {
-  Alert,
-  Image,
-  Text,
-  TouchableOpacity,
-  View,
-  Vibration,
-} from "react-native";
-import React from "react";
+import React, { useState, useRef } from "react";
+import { Alert, Image, Text, TouchableOpacity, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { icons } from "../constants";
-import { ResizeMode, Video } from "expo-av";
-import { Menu, Provider } from "react-native-paper";
-// import { deleteListing } from "../lib/appwrite";
-import { useGlobalContext } from "../context/GlobalProvider";
 import { HeartIcon } from "react-native-heroicons/outline";
+import { ResizeMode, Video } from "expo-av";
+// Context
+import { useGlobalContext } from "../context/GlobalProvider";
+// Utils
 import * as Haptics from "expo-haptics";
 import { getImageUrl } from "../lib/supabase";
+import ActionSheet from "react-native-actionsheet";
 
 type PropTypes = {
   listing: {
@@ -31,55 +25,32 @@ const ListingCard = ({
   listing: { title, thumbnail_url, video, id: listingId, creator_id },
 }: PropTypes) => {
   const [play, setPlay] = useState(false);
-  const [menuVisible, setMenuVisible] = useState(false);
-  const [menuAnchor, setMenuAnchor] = useState({ x: 0, y: 0 });
 
   const { loggedUser } = useGlobalContext();
 
-  const openMenu = () => {
+  const actionSheetRef = useRef<ActionSheet | null>(null);
+
+  const showActionSheet = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    setMenuVisible(true);
-  };
-  const closeMenu = () => setMenuVisible(false);
-
-  const handleDelete = () => {
-    Alert.alert(
-      "Потвърди изтриване",
-      "Сигурен ли си че искаш да изтриеш този пост?",
-      [
-        { text: "Откажи", style: "cancel" },
-        {
-          text: "Изтрии",
-          onPress: async () => {
-            try {
-              // await deleteListing(listingId);
-            } catch (error) {
-              console.error("Error deleting listing:", error);
-            }
-          },
-        },
-      ]
-    );
-    closeMenu();
+    if (actionSheetRef.current !== null) {
+      actionSheetRef.current.show();
+    }
   };
 
-  const handleMarkInactive = () => {
-    console.log("Listing marked as inactive");
-    closeMenu();
+  const handleActionPress = (index: number) => {
+    if (index === 1) {
+      Alert.alert("Deleted", "Listing deleted successfully");
+    } else if (index === 2) {
+      Alert.alert("Inactive", "Listing set to inactive");
+    }
   };
 
   return (
-    <Provider>
+    <SafeAreaView className="bg-primary">
       <View className="flex-col items-center px-4 mb-14">
         <View className="flex-row gap-3 items-start">
           <View className="justify-center items-center flex-row flex-1">
-            <View className="w-[46px] h-[46px] rounded-lg border border-secondary justify-center items-center p-0.5">
-              {/* <Image
-                source={{ uri: avatar }}
-                className="w-full h-full rounded-lg"
-                resizeMode="cover"
-              /> */}
-            </View>
+            <View className="w-[46px] h-[46px] rounded-lg border border-secondary justify-center items-center p-0.5"></View>
             <View className="justify-center flex-1 ml-3 gap-y-1">
               <Text
                 className="text-white font-psemibold text-sm"
@@ -101,14 +72,7 @@ const ListingCard = ({
           </TouchableOpacity>
 
           {loggedUser?.id === creator_id && (
-            <TouchableOpacity
-              className="pt-2"
-              onPress={openMenu}
-              onLayout={(event) => {
-                const { x, y } = event.nativeEvent.layout;
-                setMenuAnchor({ x, y });
-              }}
-            >
+            <TouchableOpacity className="pt-2" onPress={showActionSheet}>
               <Image
                 source={icons.menu}
                 className="w-5 h-5"
@@ -116,15 +80,6 @@ const ListingCard = ({
               />
             </TouchableOpacity>
           )}
-
-          <Menu
-            visible={menuVisible}
-            onDismiss={closeMenu}
-            anchor={{ x: menuAnchor.x, y: menuAnchor.y + 10 }}
-          >
-            <Menu.Item onPress={handleMarkInactive} title="Де-активирай" />
-            <Menu.Item onPress={handleDelete} title="Изтрии" />
-          </Menu>
         </View>
 
         {play ? (
@@ -135,7 +90,6 @@ const ListingCard = ({
             useNativeControls
             shouldPlay
             onPlaybackStatusUpdate={(status: any) => {
-              console.log("Playback status:", status);
               if (status.didJustFinish) {
                 setPlay(false);
               }
@@ -161,7 +115,14 @@ const ListingCard = ({
           </TouchableOpacity>
         )}
       </View>
-    </Provider>
+      <ActionSheet
+        ref={actionSheetRef}
+        options={["Cancel", "Изтрии рекламата", "Make Listing Inactive"]}
+        cancelButtonIndex={0}
+        destructiveButtonIndex={1}
+        onPress={handleActionPress}
+      />
+    </SafeAreaView>
   );
 };
 
