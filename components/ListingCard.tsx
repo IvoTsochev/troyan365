@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useRef } from "react";
 import { Alert, Image, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { icons } from "../constants";
@@ -10,22 +10,22 @@ import { useGlobalContext } from "../context/GlobalProvider";
 import * as Haptics from "expo-haptics";
 import { getImageUrl } from "../lib/supabase";
 import ActionSheet from "react-native-actionsheet";
+// TS
+import { ListingType } from "../types/types";
 
 type PropTypes = {
-  listing: {
-    title: string;
-    thumbnail_url: string;
-    video: string;
-    id: string;
-    creator_id: string;
-  };
+  listing: ListingType;
 };
 
 const ListingCard = ({
-  listing: { title, thumbnail_url, video, id: listingId, creator_id },
+  listing: {
+    title,
+    thumbnail_url,
+    id: listingId,
+    creator_id,
+    users: listingCreator,
+  },
 }: PropTypes) => {
-  const [play, setPlay] = useState(false);
-
   const { loggedUser } = useGlobalContext();
 
   const actionSheetRef = useRef<ActionSheet | null>(null);
@@ -47,10 +47,12 @@ const ListingCard = ({
 
   return (
     <SafeAreaView className="bg-primary">
-      <View className="flex-col items-center px-4 mb-14">
+      <View className="flex-col items-center px-4">
         <View className="flex-row gap-3 items-start">
           <View className="justify-center items-center flex-row flex-1">
-            <View className="w-[46px] h-[46px] rounded-lg border border-secondary justify-center items-center p-0.5"></View>
+            <View className="w-[46px] h-[46px] rounded-lg border border-secondary justify-center items-center p-0.5">
+              {/* AVATAR */}
+            </View>
             <View className="justify-center flex-1 ml-3 gap-y-1">
               <Text
                 className="text-white font-psemibold text-sm"
@@ -62,7 +64,7 @@ const ListingCard = ({
                 className="text-xs text-gray-100 font-pregular"
                 numberOfLines={1}
               >
-                {loggedUser?.email}
+                {listingCreator.username}
               </Text>
             </View>
           </View>
@@ -82,38 +84,22 @@ const ListingCard = ({
           )}
         </View>
 
-        {play ? (
-          <Video
-            source={{ uri: video }}
-            className="w-full h-60 rounded-xl mt-3"
-            resizeMode={ResizeMode.CONTAIN}
-            useNativeControls
-            shouldPlay
-            onPlaybackStatusUpdate={(status: any) => {
-              if (status.didJustFinish) {
-                setPlay(false);
-              }
+        <TouchableOpacity
+          activeOpacity={0.7}
+          onPress={() => console.log("clicky Listing Card")}
+          className="w-full h-60 rounded-xl mt-3 relative justify-center items-center border-2 border-white/20"
+        >
+          <Image
+            source={{
+              uri: getImageUrl({
+                bucketName: "listings_bucket",
+                imagePath: thumbnail_url,
+              }),
             }}
-            isMuted
+            className="w-full h-full rounded-xl"
+            resizeMode="cover"
           />
-        ) : (
-          <TouchableOpacity
-            activeOpacity={0.7}
-            onPress={() => setPlay(true)}
-            className="w-full h-60 rounded-xl mt-3 relative justify-center items-center border-2 border-white/20"
-          >
-            <Image
-              source={{
-                uri: getImageUrl({
-                  bucketName: "listings_bucket",
-                  imagePath: thumbnail_url,
-                }),
-              }}
-              className="w-full h-full rounded-xl mt-3"
-              resizeMode="cover"
-            />
-          </TouchableOpacity>
-        )}
+        </TouchableOpacity>
       </View>
       <ActionSheet
         ref={actionSheetRef}
