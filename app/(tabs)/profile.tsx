@@ -1,73 +1,40 @@
-import {
-  View,
-  FlatList,
-  TouchableOpacity,
-  Image,
-  Text,
-  ScrollView,
-  Alert,
-  Pressable,
-} from "react-native";
-import React, { useState } from "react";
+import React from "react";
+import { View, FlatList, TouchableOpacity, Image, Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import EmptyState from "../../components/EmptyState";
-import {
-  getCurrentUser,
-  getUserPosts,
-  signIn,
-  signOut,
-} from "../../lib/appwrite";
-import useAppwrite from "../../lib/useAppwrite";
-import VideoCard from "../../components/VideoCard";
+import useSupabase from "../../lib/useSupabase";
+import ListingCard from "../../components/ListingCard";
 import { useGlobalContext } from "../../context/GlobalProvider";
 import { icons } from "../../constants";
 import InfoBox from "../../components/InfoBox";
-import { Link, router } from "expo-router";
-import { images } from "../../constants";
+import { router } from "expo-router";
 import CustomButton from "../../components/CustomButton";
-import FormField from "../../components/FormField";
+import { signOut, getUserListings } from "../../lib/supabase";
 
 const Profile = () => {
-  const [form, setForm] = useState({
-    email: "",
-    password: "",
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { loggedUser, setLoggedUser, setIsLogged, session, setSession } =
+    useGlobalContext();
+  console.log("loggedUser ==>>>", loggedUser);
+  const { data: posts } = useSupabase(() => getUserListings(loggedUser?.id));
+  console.log("whjat is posts ==>>>", posts);
+  console.log("whjat is loggedUser?.id ==>>>", loggedUser?.id);
 
-  const { user, setUser, setIsLogged } = useGlobalContext();
-  const { data: posts } = useAppwrite(() => getUserPosts(user?.$id));
+  console.log(
+    "PROFILE loggedUser.app_metadata",
+    loggedUser?.user_metadata.username
+  );
 
   const logout = async () => {
     await signOut();
-    setUser(null);
+    setLoggedUser(undefined);
+    setSession(null);
     setIsLogged(false);
 
     router.replace("/home");
   };
 
-  const submit = async () => {
-    if (!form.email || !form.password) {
-      Alert.alert("Error", "Please fill in all fields");
-    }
-
-    setIsSubmitting(true);
-
-    try {
-      await signIn(form.email, form.password);
-      const result = await getCurrentUser();
-      setUser(result);
-      setIsLogged(true);
-
-      router.replace("/home");
-    } catch (error: any) {
-      Alert.alert("Error", error.message);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  if (!user) {
+  if (!session) {
     return (
       <SafeAreaView className="bg-primary h-full justify-center items-center">
         <Text className="text-white text-xl mb-4">
@@ -87,7 +54,7 @@ const Profile = () => {
       <FlatList
         data={posts}
         keyExtractor={(item) => item?.id}
-        renderItem={({ item }) => <VideoCard video={item} />}
+        renderItem={({ item }) => <ListingCard listing={item} />}
         ListHeaderComponent={() => (
           <View className="w-full justify-center items-center mt-6 mb-12 px-4">
             <TouchableOpacity
@@ -101,14 +68,14 @@ const Profile = () => {
               />
             </TouchableOpacity>
             <View className="w-16 h-16 border border-secondary rounded-lg justify-center items-center">
-              <Image
+              {/* <Image
                 source={{ uri: user?.avatar }}
                 className="w-[90%] h-[90%] rounded-lg"
                 resizeMode="cover"
-              />
+              /> */}
             </View>
             <InfoBox
-              title={user?.username}
+              title={loggedUser?.user_metadata.username}
               containerStyle="mt-5"
               titleStyles="text-lg font-bold"
             />

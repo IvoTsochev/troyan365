@@ -6,18 +6,17 @@ import { images } from "../../constants";
 import FormField from "../../components/FormField";
 import CustomButton from "../../components/CustomButton";
 import { Link, router } from "expo-router";
-import { createUser } from "../../lib/appwrite";
 import { useGlobalContext } from "../../context/GlobalProvider";
+import { signUp } from "../../lib/supabase";
 
 const SignUp = () => {
-  const { setUser, setIsLogged } = useGlobalContext();
+  const { setLoggedUser, setIsLogged } = useGlobalContext();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [form, setForm] = useState({
     username: "",
     email: "",
     password: "",
   });
-
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const submit = async () => {
     if (!form.username || !form.email || !form.password) {
@@ -27,8 +26,14 @@ const SignUp = () => {
     setIsSubmitting(true);
 
     try {
-      const result = await createUser(form.email, form.password, form.username);
-      setUser(result);
+      const { error, user } = await signUp(
+        form.username,
+        form.email,
+        form.password
+      );
+      console.log("what is result", user);
+
+      setLoggedUser(user);
       setIsLogged(true);
 
       router.replace("/home");
@@ -74,7 +79,7 @@ const SignUp = () => {
           />
 
           <CustomButton
-            title="Създай профил"
+            title={isSubmitting ? "Създаване..." : "Създай профил"}
             handlePress={submit}
             containerStyles="mt-7"
             isLoading={isSubmitting}

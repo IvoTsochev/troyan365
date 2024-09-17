@@ -6,11 +6,11 @@ import { images } from "../../constants";
 import FormField from "../../components/FormField";
 import CustomButton from "../../components/CustomButton";
 import { Link, router } from "expo-router";
-import { getCurrentUser, signIn } from "../../lib/appwrite";
 import { useGlobalContext } from "../../context/GlobalProvider";
+import { signIn } from "../../lib/supabase";
 
 const SignIn = () => {
-  const { setUser, setIsLogged } = useGlobalContext();
+  const { setLoggedUser, setIsLogged } = useGlobalContext();
   const [form, setForm] = useState({
     email: "",
     password: "",
@@ -18,7 +18,7 @@ const SignIn = () => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const submit = async () => {
+  const signInHandler = async () => {
     if (!form.email || !form.password) {
       Alert.alert("Error", "Please fill in all fields");
     }
@@ -26,9 +26,10 @@ const SignIn = () => {
     setIsSubmitting(true);
 
     try {
-      await signIn(form.email, form.password);
-      const result = await getCurrentUser();
-      setUser(result);
+      const { error, data } = await signIn(form.email, form.password);
+      console.log("what is sign in data", data);
+
+      setLoggedUser(data.session?.user);
       setIsLogged(true);
 
       router.replace("/home");
@@ -66,8 +67,8 @@ const SignIn = () => {
           />
 
           <CustomButton
-            title="Влез"
-            handlePress={submit}
+            title={isSubmitting ? "Влизане..." : "Влез"}
+            handlePress={signInHandler}
             containerStyles="mt-7"
             isLoading={isSubmitting}
           />
