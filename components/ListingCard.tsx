@@ -3,12 +3,15 @@ import { Alert, Image, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { icons } from "../constants";
 import { HeartIcon } from "react-native-heroicons/outline";
-import { ResizeMode, Video } from "expo-av";
 // Context
 import { useGlobalContext } from "../context/GlobalProvider";
 // Utils
 import * as Haptics from "expo-haptics";
-import { getImageUrl } from "../lib/supabase";
+import {
+  deleteListing,
+  deleteListingFolder,
+  getImageUrl,
+} from "../lib/supabase";
 import ActionSheet from "react-native-actionsheet";
 // TS
 import { ListingType } from "../types/types";
@@ -24,9 +27,11 @@ const ListingCard = ({
     id: listingId,
     creator_id,
     users: listingCreator,
+    listing_id,
   },
 }: PropTypes) => {
-  const { loggedUser } = useGlobalContext();
+  const { loggedUser, setShouldRefetchHome, setShouldRefetchProfile } =
+    useGlobalContext();
 
   const actionSheetRef = useRef<ActionSheet | null>(null);
 
@@ -37,11 +42,29 @@ const ListingCard = ({
     }
   };
 
-  const handleActionPress = (index: number) => {
+  const handleActionPress = async (index: number) => {
     if (index === 1) {
-      Alert.alert("Deleted", "Listing deleted successfully");
+      try {
+        if (!loggedUser?.id) return;
+        await deleteListing({
+          listingId: listing_id,
+        });
+
+        await deleteListingFolder({
+          loggedUserId: loggedUser.id,
+          listingId: listing_id,
+        });
+
+        setShouldRefetchHome(true);
+        setShouldRefetchProfile(true);
+
+        Alert.alert("Изтрита", "Публикацията е изтрита");
+      } catch (error) {
+        Alert.alert("Грешка", "Грешка при изтриване на публикацията");
+        console.error(error);
+      }
     } else if (index === 2) {
-      Alert.alert("Inactive", "Listing set to inactive");
+      Alert.alert("Деактивирана", "Публикацията е деактивирана");
     }
   };
 
@@ -69,12 +92,12 @@ const ListingCard = ({
             </View>
           </View>
 
-          <TouchableOpacity className="pt-2 mr-3">
-            <HeartIcon className="w-5 h-5 pt-2" color="red" />
+          <TouchableOpacity className="p-4 mr-3">
+            <HeartIcon className="w-5 h-5" color="red" />
           </TouchableOpacity>
 
           {loggedUser?.id === creator_id && (
-            <TouchableOpacity className="pt-2" onPress={showActionSheet}>
+            <TouchableOpacity className="p-4" onPress={showActionSheet}>
               <Image
                 source={icons.menu}
                 className="w-5 h-5"
@@ -103,7 +126,7 @@ const ListingCard = ({
       </View>
       <ActionSheet
         ref={actionSheetRef}
-        options={["Cancel", "Изтрии рекламата", "Make Listing Inactive"]}
+        options={["Cancel", "Изтрии публикация", "Деактивирай публикация"]}
         cancelButtonIndex={0}
         destructiveButtonIndex={1}
         onPress={handleActionPress}

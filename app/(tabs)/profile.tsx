@@ -1,9 +1,8 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { View, FlatList, TouchableOpacity, Image, Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import EmptyState from "../../components/EmptyState";
-import useSupabase from "../../lib/useSupabase";
 import ListingCard from "../../components/ListingCard";
 import { useGlobalContext } from "../../context/GlobalProvider";
 import { icons } from "../../constants";
@@ -13,9 +12,34 @@ import CustomButton from "../../components/CustomButton";
 import { signOut, getUserListings } from "../../lib/supabase";
 
 const Profile = () => {
-  const { loggedUser, setLoggedUser, setIsLogged, session, setSession } =
-    useGlobalContext();
-  const { data: listings } = useSupabase(() => getUserListings(loggedUser?.id));
+  const [myListings, setMyListings] = useState([]);
+  const {
+    loggedUser,
+    setLoggedUser,
+    setIsLogged,
+    session,
+    setSession,
+    setShouldRefetchProfile,
+    shouldRefetchProfile,
+  } = useGlobalContext();
+
+  const fetchData = async () => {
+    const data = await getUserListings(loggedUser?.id);
+    if (data) {
+      setMyListings(data);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    if (shouldRefetchProfile) {
+      fetchData();
+      setShouldRefetchProfile(false);
+    }
+  }, [shouldRefetchProfile]);
 
   const logout = async () => {
     await signOut();
@@ -44,7 +68,7 @@ const Profile = () => {
   return (
     <SafeAreaView className="bg-primary h-full">
       <FlatList
-        data={listings}
+        data={myListings}
         keyExtractor={(item) => item?.id}
         renderItem={({ item }) => <ListingCard listing={item} />}
         ListHeaderComponent={() => (
@@ -74,7 +98,7 @@ const Profile = () => {
 
             <View className="mt-5 flex-row">
               <InfoBox
-                title={listings?.length.toString() || "0"}
+                title={myListings?.length.toString() || "0"}
                 subtitle="Постове"
                 containerStyle="mr-10"
                 titleStyles="text-xl"
