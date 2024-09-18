@@ -18,6 +18,10 @@ type GlobalContextType = {
   setSession: (session: Session | null) => void;
   loading: boolean;
   setLoading: (loading: boolean) => void;
+  shouldRefetchHome: boolean;
+  setShouldRefetchHome: (shouldRefetchHome: boolean) => void;
+  shouldRefetchProfile: boolean;
+  setShouldRefetchProfile: (shouldRefetchProfile: boolean) => void;
 };
 
 const GlobalContext = createContext<GlobalContextType>({
@@ -29,6 +33,10 @@ const GlobalContext = createContext<GlobalContextType>({
   setSession: () => {},
   loading: true,
   setLoading: () => {},
+  shouldRefetchHome: false,
+  setShouldRefetchHome: () => {},
+  shouldRefetchProfile: false,
+  setShouldRefetchProfile: () => {},
 });
 
 export const useGlobalContext = () => useContext(GlobalContext);
@@ -38,6 +46,8 @@ const GlobalProvider = ({ children }: PropsWithChildren) => {
   const [loggedUser, setLoggedUser] = useState<User | undefined>();
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [shouldRefetchHome, setShouldRefetchHome] = useState(false);
+  const [shouldRefetchProfile, setShouldRefetchProfile] = useState(false);
 
   useEffect(() => {
     const fetchUserSession = async () => {
@@ -71,6 +81,10 @@ const GlobalProvider = ({ children }: PropsWithChildren) => {
         setSession,
         loading,
         setLoading,
+        shouldRefetchHome,
+        setShouldRefetchHome,
+        shouldRefetchProfile,
+        setShouldRefetchProfile,
       }}
     >
       {children}

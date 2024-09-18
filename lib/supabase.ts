@@ -260,3 +260,58 @@ export const getLatestListings = async () => {
 
   return data;
 };
+
+// DELETE LISTING FOLDER FROM SUPABASE STORAGE
+export const deleteListingFolder = async ({
+  loggedUserId,
+  listingId,
+}: {
+  loggedUserId: string;
+  listingId: string;
+}) => {
+  if (!loggedUserId || !listingId) {
+    throw new Error("Missing loggedUserId or listingId");
+  }
+  const path = `listings/${loggedUserId}/${listingId}`;
+
+  // List all files in the listing folder
+  const { data: files, error: listError } = await supabase.storage
+    .from("listings_bucket")
+    .list(path, {
+      limit: 15, // Adjust this if you expect more than 100 files
+    });
+
+  if (listError) {
+    throw listError;
+  }
+
+  // If files exist, delete them
+  if (files?.length > 0) {
+    const filePaths = files.map((file) => `${path}/${file.name}`);
+    // Delete all files in the folder
+    const { error: deleteError } = await supabase.storage
+      .from("listings_bucket")
+      .remove(filePaths);
+
+    if (deleteError) {
+      throw deleteError;
+    }
+  }
+};
+
+// DELETE LISTING FROM SUPABASE
+export const deleteListing = async ({ listingId }: { listingId: string }) => {
+  if (!listingId) {
+    throw new Error("Missing listingId");
+  }
+  const { data, error } = await supabase
+    .from("listings")
+    .delete()
+    .eq("listing_id", listingId);
+
+  if (error) {
+    throw error;
+  }
+
+  return data;
+};

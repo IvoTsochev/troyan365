@@ -16,11 +16,19 @@ const Home = () => {
   const [listingsData, setListingsData] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
 
-  const { loggedUser } = useGlobalContext();
+  const { loggedUser, shouldRefetchHome, setShouldRefetchHome } =
+    useGlobalContext();
 
   useEffect(() => {
     fetchData();
   }, []);
+
+  useEffect(() => {
+    if (shouldRefetchHome) {
+      fetchData();
+      setShouldRefetchHome(false);
+    }
+  }, [shouldRefetchHome]);
 
   const fetchData = async () => {
     const data = await getLatestListings();
