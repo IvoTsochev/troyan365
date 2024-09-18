@@ -25,6 +25,31 @@ export const getImageUrl = ({
   return `${supabaseBucketUrl}/${bucketName}/${imagePath}`;
 };
 
+// UPDATE USER DATA IN USERS TABLE
+const insertUserData = async ({
+  userId,
+  email,
+  username,
+}: {
+  userId: string;
+  email: string;
+  username: string;
+}) => {
+  const { data, error } = await supabase.from("users").insert([
+    {
+      user_id: userId,
+      email: email,
+      username: username,
+    },
+  ]);
+
+  if (error) {
+    throw error;
+  }
+
+  return data;
+};
+
 // SIGN UP
 export const signUp = async (
   username: string,
@@ -44,6 +69,18 @@ export const signUp = async (
   if (error) {
     throw error;
   }
+
+  const userId = data?.user?.id;
+
+  if (!userId) {
+    throw new Error("User ID is undefined");
+  }
+
+  const userData = await insertUserData({
+    userId: userId,
+    email,
+    username,
+  });
 
   return {
     error,
@@ -96,7 +133,15 @@ export const getUserListings = async (userId: string | undefined) => {
 
   const { data, error } = await supabase
     .from("listings")
-    .select("*")
+    .select(
+      `
+      *,
+      users (
+        email,
+        username
+      )
+      `
+    )
     .eq("creator_id", userId)
     .order("created_at", { ascending: false });
 

@@ -64,7 +64,7 @@ const ListingCard = ({
                 className="text-xs text-gray-100 font-pregular"
                 numberOfLines={1}
               >
-                {listingCreator.username}
+                {listingCreator?.username}
               </Text>
             </View>
           </View>

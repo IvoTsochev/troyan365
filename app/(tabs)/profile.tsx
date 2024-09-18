@@ -15,7 +15,7 @@ import { signOut, getUserListings } from "../../lib/supabase";
 const Profile = () => {
   const { loggedUser, setLoggedUser, setIsLogged, session, setSession } =
     useGlobalContext();
-  const { data: posts } = useSupabase(() => getUserListings(loggedUser?.id));
+  const { data: listings } = useSupabase(() => getUserListings(loggedUser?.id));
 
   const logout = async () => {
     await signOut();
@@ -44,7 +44,7 @@ const Profile = () => {
   return (
     <SafeAreaView className="bg-primary h-full">
       <FlatList
-        data={posts}
+        data={listings}
         keyExtractor={(item) => item?.id}
         renderItem={({ item }) => <ListingCard listing={item} />}
         ListHeaderComponent={() => (
@@ -74,7 +74,7 @@ const Profile = () => {
 
             <View className="mt-5 flex-row">
               <InfoBox
-                title={posts?.length.toString() || "0"}
+                title={listings?.length.toString() || "0"}
                 subtitle="Постове"
                 containerStyle="mr-10"
                 titleStyles="text-xl"
