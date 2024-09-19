@@ -34,7 +34,11 @@ const Create = () => {
     phone_number1: "",
   });
 
-  const openPicker = async (selectType) => {
+  const openPicker = async ({
+    selectType,
+  }: {
+    selectType: "image" | "video";
+  }) => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes:
         selectType === "image"
@@ -110,7 +114,7 @@ const Create = () => {
           </Text>
           <TouchableOpacity
             onPress={() => {
-              openPicker("image");
+              openPicker({ selectType: "image" });
             }}
           >
             {form.thumbnail_image ? (
