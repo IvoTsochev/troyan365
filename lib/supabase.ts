@@ -1,6 +1,7 @@
 import { supabase } from "./supabase-config";
 import uuid from "react-native-uuid";
 import * as ImagePicker from "expo-image-picker";
+import * as ImageManipulator from "expo-image-manipulator";
 
 type ImageType = ImagePicker.ImagePickerAsset;
 
@@ -152,6 +153,32 @@ export const getUserListings = async (userId: string | undefined) => {
   return data;
 };
 
+// COMPRESS IMAGE
+const compressImage = async ({ imageUri }: { imageUri: string }) => {
+  try {
+    const imageInfo = await ImageManipulator.manipulateAsync(imageUri, [], {});
+
+    const originalWidth = imageInfo.width;
+    const originalHeight = imageInfo.height;
+
+    const isPortrait = originalHeight > originalWidth;
+
+    const targetWidth = isPortrait ? 800 : 1200;
+    const targetHeight = isPortrait ? 1200 : 800;
+
+    const result = await ImageManipulator.manipulateAsync(
+      imageUri,
+      [{ resize: { width: targetWidth } }],
+      { compress: 0.8, format: ImageManipulator.SaveFormat.JPEG }
+    );
+
+    return result.uri;
+  } catch (error) {
+    console.error("Error resizing image:", error);
+    throw error;
+  }
+};
+
 // Function to convert the URI to a Blob
 const uriToBlob = async ({ uri }: any) => {
   const response = await fetch(uri);
@@ -173,7 +200,8 @@ export const uploadFile = async ({
     throw new Error("Missing file, userId or listingId");
   }
 
-  const fileBlob = await uriToBlob({ uri: file.uri });
+  const compressedImageUri = await compressImage({ imageUri: file.uri });
+  const fileBlob = await uriToBlob({ uri: compressedImageUri });
   const arrayBuffer = await new Response(fileBlob).arrayBuffer();
 
   const fileName = file.name || `${new Date().getTime()}_thumbnail.jpg`;
