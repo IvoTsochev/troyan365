@@ -96,6 +96,11 @@ const Profile = () => {
               titleStyles="text-lg font-bold"
             />
 
+            <InfoBox
+              title={loggedUser?.user_metadata.email}
+              titleStyles="text-sm"
+            />
+
             <View className="mt-5 flex-row">
               <InfoBox
                 title={myListings?.length.toString() || "0"}
