@@ -5,15 +5,19 @@ import * as ImageManipulator from "expo-image-manipulator";
 
 type ImageType = ImagePicker.ImagePickerAsset;
 
-export const supabaseBaseUrl = "https://qeecuxesbmiidpvycjqq.supabase.co";
-export const supabaseBucketPath = "storage/v1/object/public";
-export const supabaseBucketUrl = `${supabaseBaseUrl}/${supabaseBucketPath}`;
+// CLOUD URL's
+// export const supabaseBaseUrl = "https://qeecuxesbmiidpvycjqq.supabase.co";
+// export const supabaseBucketPath = "storage/v1/object/public";
+// export const supabaseBucketUrl = `${supabaseBaseUrl}/${supabaseBucketPath}`;
 
 // e.g. https://qeecuxesbmiidpvycjqq.supabase.co/storage/v1/object/public/listings_bucket/listings/d314fbce-d056-46e4-a55d-82f19d2ca940/c4655a5c-d611-4b5d-b924-d9e90e77902a/IMG_0005.jpg
-// listings => main folder in bucket
-// d314fbce-d056-46e4-a55d-82f19d2ca940 => user id folder
-// c4655a5c-d611-4b5d-b924-d9e90e77902a => listing id folder
-// IMG_0005.jpg => image file
+
+// SELF HOSTED URL's
+export const supabaseBaseUrl = "http://139.162.163.228:8000";
+export const supabaseBucketPath = "storage/v1/object/public/";
+export const supabaseBucketUrl = `${supabaseBaseUrl}/${supabaseBucketPath}/`;
+
+// e.g. http://139.162.163.228:8000/storage/v1/object/public/listings_bucket/listings/ed368b56-5598-49bf-bbd6-51e66ee457d2/64bca54a-ef4b-4dc6-bfec-b39e0c95cbcd/IMG_0015.jpg
 
 // GET IMAGE URL
 export const getImageUrl = ({
