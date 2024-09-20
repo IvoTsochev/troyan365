@@ -280,7 +280,7 @@ export const getLatestListings = async () => {
     `
     )
     .order("created_at", { ascending: false })
-    .limit(10);
+    .limit(5);
 
   if (error) {
     throw error;
@@ -302,11 +302,10 @@ export const deleteListingFolder = async ({
   }
   const path = `listings/${loggedUserId}/${listingId}`;
 
-  // List all files in the listing folder
   const { data: files, error: listError } = await supabase.storage
     .from("listings_bucket")
     .list(path, {
-      limit: 15, // Adjust this if you expect more than 100 files
+      limit: 15,
     });
 
   if (listError) {
@@ -336,6 +335,90 @@ export const deleteListing = async ({ listingId }: { listingId: string }) => {
     .from("listings")
     .delete()
     .eq("listing_id", listingId);
+
+  if (error) {
+    throw error;
+  }
+
+  return data;
+};
+
+// ADD TO FAVORITES
+export const addFavorite = async ({
+  userId,
+  listingId,
+}: {
+  userId: string;
+  listingId: string;
+}) => {
+  const { data, error } = await supabase
+    .from("favorites")
+    .insert([{ user_id: userId, listing_id: listingId }]);
+
+  if (error) {
+    console.error("Error adding to favorites:", error);
+    throw error;
+  }
+
+  return data;
+};
+
+// REMOVE FROM FAVORITES
+export const removeFavorite = async ({
+  userId,
+  listingId,
+}: {
+  userId: string;
+  listingId: string;
+}) => {
+  const { data, error } = await supabase
+    .from("favorites")
+    .delete()
+    .eq("user_id", userId)
+    .eq("listing_id", listingId);
+
+  if (error) {
+    console.error("Error removing from favorites:", error);
+    throw error;
+  }
+
+  return data;
+};
+
+// GET MY FAVORITES
+export const getMyFavoriteListingIds = async ({
+  userId,
+}: {
+  userId: string;
+}) => {
+  const { data, error } = await supabase
+    .from("favorites")
+    .select(`listing_id`)
+    .eq("user_id", userId);
+
+  if (error) {
+    console.error("Error getting my favorites:", error);
+    throw error;
+  }
+
+  return data;
+};
+
+// GET SPECIFIC LISTING
+export const getSpecificListing = async (listingId: string) => {
+  const { data, error } = await supabase
+    .from("listings")
+    .select(
+      `
+      *,
+      users (
+        email,
+        username
+      )
+    `
+    )
+    .eq("listing_id", listingId)
+    .single();
 
   if (error) {
     throw error;

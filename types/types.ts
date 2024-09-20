@@ -14,3 +14,9 @@ export type ListingType = {
   title: string;
   users: UserType;
 };
+
+export type FavoriteType = {
+  id: string;
+  listing_id: string;
+  user_id: string;
+};

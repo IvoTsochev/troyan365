@@ -5,7 +5,7 @@ import {
   useEffect,
   PropsWithChildren,
 } from "react";
-import { getUserSession } from "../lib/supabase";
+import { getUserSession, getMyFavoriteListingIds } from "../lib/supabase";
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "../lib/supabase-config";
 
@@ -22,6 +22,8 @@ type GlobalContextType = {
   setShouldRefetchHome: (shouldRefetchHome: boolean) => void;
   shouldRefetchProfile: boolean;
   setShouldRefetchProfile: (shouldRefetchProfile: boolean) => void;
+  myFavoriteIds: { listing_id: string }[];
+  setMyFavoriteIds: (favorites: { listing_id: string }[]) => void;
 };
 
 const GlobalContext = createContext<GlobalContextType>({
@@ -37,6 +39,8 @@ const GlobalContext = createContext<GlobalContextType>({
   setShouldRefetchHome: () => {},
   shouldRefetchProfile: false,
   setShouldRefetchProfile: () => {},
+  myFavoriteIds: [],
+  setMyFavoriteIds: () => {},
 });
 
 export const useGlobalContext = () => useContext(GlobalContext);
@@ -48,6 +52,9 @@ const GlobalProvider = ({ children }: PropsWithChildren) => {
   const [loading, setLoading] = useState(true);
   const [shouldRefetchHome, setShouldRefetchHome] = useState(false);
   const [shouldRefetchProfile, setShouldRefetchProfile] = useState(false);
+  const [myFavoriteIds, setMyFavoriteIds] = useState<{ listing_id: string }[]>(
+    []
+  );
 
   useEffect(() => {
     const fetchUserSession = async () => {
@@ -70,6 +77,19 @@ const GlobalProvider = ({ children }: PropsWithChildren) => {
     }
   }, []);
 
+  useEffect(() => {
+    if (session) {
+      const fetchFavorites = async () => {
+        const data = await getMyFavoriteListingIds({ userId: session.user.id });
+        if (data) {
+          setMyFavoriteIds(data);
+        }
+      };
+
+      fetchFavorites();
+    }
+  }, [session]);
+
   return (
     <GlobalContext.Provider
       value={{
@@ -85,6 +105,8 @@ const GlobalProvider = ({ children }: PropsWithChildren) => {
         setShouldRefetchHome,
         shouldRefetchProfile,
         setShouldRefetchProfile,
+        myFavoriteIds,
+        setMyFavoriteIds,
       }}
     >
       {children}

@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { Alert, Image, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { icons } from "../constants";
@@ -8,9 +8,11 @@ import { useGlobalContext } from "../context/GlobalProvider";
 // Utils
 import * as Haptics from "expo-haptics";
 import {
+  addFavorite,
   deleteListing,
   deleteListingFolder,
   getImageUrl,
+  removeFavorite,
 } from "../lib/supabase";
 import ActionSheet from "react-native-actionsheet";
 // TS
@@ -24,14 +26,19 @@ const ListingCard = ({
   listing: {
     title,
     thumbnail_url,
-    id: listingId,
     creator_id,
     users: listingCreator,
     listing_id,
   },
 }: PropTypes) => {
-  const { loggedUser, setShouldRefetchHome, setShouldRefetchProfile } =
-    useGlobalContext();
+  const {
+    loggedUser,
+    setShouldRefetchHome,
+    setShouldRefetchProfile,
+    myFavoriteIds,
+    setMyFavoriteIds,
+  } = useGlobalContext();
+  const [isListingFavorited, setIsListingFavorited] = useState(false);
 
   const actionSheetRef = useRef<ActionSheet | null>(null);
 
@@ -68,6 +75,39 @@ const ListingCard = ({
     }
   };
 
+  const toggleFavoritesHandler = async () => {
+    try {
+      if (!loggedUser?.id) return;
+      const isFavorited = myFavoriteIds.some(
+        (item) => item.listing_id === listing_id
+      );
+
+      if (isFavorited) {
+        setMyFavoriteIds(
+          myFavoriteIds.filter((item) => item.listing_id !== listing_id)
+        );
+        await removeFavorite({
+          userId: loggedUser.id,
+          listingId: listing_id,
+        });
+      } else {
+        setMyFavoriteIds([...myFavoriteIds, { listing_id }]);
+        await addFavorite({
+          userId: loggedUser.id,
+          listingId: listing_id,
+        });
+      }
+    } catch (error) {
+      console.error("Error toggling favorite:", error);
+    }
+  };
+
+  useEffect(() => {
+    setIsListingFavorited(
+      myFavoriteIds.some((item) => item.listing_id === listing_id)
+    );
+  }, [myFavoriteIds]);
+
   return (
     <SafeAreaView className="bg-primary">
       <View className="flex-col items-center px-4">
@@ -92,8 +132,15 @@ const ListingCard = ({
             </View>
           </View>
 
-          <TouchableOpacity className="p-4 mr-3">
-            <HeartIcon className="w-5 h-5" color="red" />
+          <TouchableOpacity
+            className="p-4 mr-3"
+            onPress={toggleFavoritesHandler}
+          >
+            <HeartIcon
+              className="w-5 h-5"
+              color="red"
+              fill={isListingFavorited ? "red" : "transparent"}
+            />
           </TouchableOpacity>
 
           {loggedUser?.id === creator_id && (
