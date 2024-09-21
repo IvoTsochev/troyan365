@@ -11,16 +11,26 @@ import { images } from "../../constants";
 // Utils
 import { useGlobalContext } from "../../context/GlobalProvider";
 import { getLatestListings } from "../../lib/supabase";
+// TS
+import { ListingType } from "../../types/types";
 
 const Home = () => {
-  const [listingsData, setListingsData] = useState([]);
+  const [listingsData, setListingsData] = useState<ListingType[]>([]);
   const [refreshing, setRefreshing] = useState(false);
 
-  const { loggedUser } = useGlobalContext();
+  const { loggedUser, shouldRefetchHome, setShouldRefetchHome } =
+    useGlobalContext();
 
   useEffect(() => {
     fetchData();
   }, []);
+
+  useEffect(() => {
+    if (shouldRefetchHome) {
+      fetchData();
+      setShouldRefetchHome(false);
+    }
+  }, [shouldRefetchHome]);
 
   const fetchData = async () => {
     const data = await getLatestListings();

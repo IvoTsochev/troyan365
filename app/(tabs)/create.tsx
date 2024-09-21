@@ -10,7 +10,6 @@ import {
 import React from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import FormField from "../../components/FormField";
-import { Video, ResizeMode } from "expo-av";
 import { icons } from "../../constants";
 import CustomButton from "../../components/CustomButton";
 import * as ImagePicker from "expo-image-picker";
@@ -22,19 +21,26 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view
 type ImageType = ImagePicker.ImagePickerAsset;
 
 const Create = () => {
-  const { loggedUser, session } = useGlobalContext();
+  const { loggedUser, session, setShouldRefetchHome, setShouldRefetchProfile } =
+    useGlobalContext();
   const [uploading, setUploading] = useState(false);
   const [form, setForm] = useState<{
     title: string;
     thumbnail_image: ImageType | null;
     phone_number1: string;
+    description?: string;
   }>({
     title: "",
     thumbnail_image: null,
     phone_number1: "",
+    description: "",
   });
 
-  const openPicker = async (selectType) => {
+  const openPicker = async ({
+    selectType,
+  }: {
+    selectType: "image" | "video";
+  }) => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes:
         selectType === "image"
@@ -60,7 +66,7 @@ const Create = () => {
 
   const createListingHandler = async () => {
     if (!form.phone_number1 || !form.title) {
-      Alert.alert("Error", "Please fill all fields");
+      Alert.alert("Грешка", "Моля попълнете всички полета");
       return;
     }
 
@@ -70,16 +76,21 @@ const Create = () => {
         form,
         userId: loggedUser?.id,
       });
-      Alert.alert("Success", "Video uploaded successfully");
+      Alert.alert("Готово", "Публикацията скоро ще бъде публикувана");
+
+      setShouldRefetchHome(true);
+      setShouldRefetchProfile(true);
+
       router.push("/home");
     } catch (error) {
       console.error(error);
-      Alert.alert("Error", "An error occured while uploading video");
+      Alert.alert("Грешка", "Грешка при качването на публикацията");
     } finally {
       setForm({
         title: "",
         thumbnail_image: null,
         phone_number1: "",
+        description: "",
       });
       setUploading(false);
     }
@@ -100,13 +111,23 @@ const Create = () => {
           }`}
         />
 
+        <FormField
+          title="Описание"
+          value={form.description || ""}
+          handleChangeText={(e) => {
+            setForm({ ...form, description: e });
+          }}
+          otherStyles={`mt-10 
+          }`}
+        />
+
         <View className="mt-7 space-y-2">
           <Text className="text-base text-gray-100 font-pmedium">
             Главна снимка
           </Text>
           <TouchableOpacity
             onPress={() => {
-              openPicker("image");
+              openPicker({ selectType: "image" });
             }}
           >
             {form.thumbnail_image ? (
@@ -140,7 +161,13 @@ const Create = () => {
           otherStyles="mt-7"
         />
         <CustomButton
-          title={session ? "Качи обява" : "Влез"}
+          title={
+            session && uploading
+              ? "Публикуване..."
+              : session
+              ? "Публикувай обява"
+              : "Влез"
+          }
           handlePress={
             session ? createListingHandler : () => router.push("/sign-in")
           }

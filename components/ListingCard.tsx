@@ -1,84 +1,120 @@
-import { useState } from "react";
-import {
-  Alert,
-  Image,
-  Text,
-  TouchableOpacity,
-  View,
-  Vibration,
-} from "react-native";
-import React from "react";
+import React, { useRef, useState, useEffect } from "react";
+import { Alert, Image, Text, TouchableOpacity, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { icons } from "../constants";
-import { ResizeMode, Video } from "expo-av";
-import { Menu, Provider } from "react-native-paper";
-// import { deleteListing } from "../lib/appwrite";
-import { useGlobalContext } from "../context/GlobalProvider";
 import { HeartIcon } from "react-native-heroicons/outline";
+// Context
+import { useGlobalContext } from "../context/GlobalProvider";
+// Utils
 import * as Haptics from "expo-haptics";
-import { getImageUrl } from "../lib/supabase";
+import {
+  addFavorite,
+  deleteListing,
+  deleteListingFolder,
+  getImageUrl,
+  removeFavorite,
+} from "../lib/supabase";
+import ActionSheet from "react-native-actionsheet";
+// TS
+import { ListingType } from "../types/types";
 
 type PropTypes = {
-  listing: {
-    title: string;
-    thumbnail_url: string;
-    video: string;
-    id: string;
-    creator_id: string;
-  };
+  listing: ListingType;
 };
 
 const ListingCard = ({
-  listing: { title, thumbnail_url, video, id: listingId, creator_id },
+  listing: {
+    title,
+    thumbnail_url,
+    creator_id,
+    users: listingCreator,
+    listing_id,
+  },
 }: PropTypes) => {
-  const [play, setPlay] = useState(false);
-  const [menuVisible, setMenuVisible] = useState(false);
-  const [menuAnchor, setMenuAnchor] = useState({ x: 0, y: 0 });
+  const {
+    loggedUser,
+    setShouldRefetchHome,
+    setShouldRefetchProfile,
+    myFavoriteIds,
+    setMyFavoriteIds,
+  } = useGlobalContext();
+  const [isListingFavorited, setIsListingFavorited] = useState(false);
 
-  const { loggedUser } = useGlobalContext();
+  const actionSheetRef = useRef<ActionSheet | null>(null);
 
-  const openMenu = () => {
+  const showActionSheet = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    setMenuVisible(true);
+    if (actionSheetRef.current !== null) {
+      actionSheetRef.current.show();
+    }
   };
-  const closeMenu = () => setMenuVisible(false);
 
-  const handleDelete = () => {
-    Alert.alert(
-      "Потвърди изтриване",
-      "Сигурен ли си че искаш да изтриеш този пост?",
-      [
-        { text: "Откажи", style: "cancel" },
-        {
-          text: "Изтрии",
-          onPress: async () => {
-            try {
-              // await deleteListing(listingId);
-            } catch (error) {
-              console.error("Error deleting listing:", error);
-            }
-          },
-        },
-      ]
+  const handleActionPress = async (index: number) => {
+    if (index === 1) {
+      try {
+        if (!loggedUser?.id) return;
+        await deleteListing({
+          listingId: listing_id,
+        });
+
+        await deleteListingFolder({
+          loggedUserId: loggedUser.id,
+          listingId: listing_id,
+        });
+
+        setShouldRefetchHome(true);
+        setShouldRefetchProfile(true);
+
+        Alert.alert("Изтрита", "Публикацията е изтрита");
+      } catch (error) {
+        Alert.alert("Грешка", "Грешка при изтриване на публикацията");
+        console.error(error);
+      }
+    } else if (index === 2) {
+      Alert.alert("Деактивирана", "Публикацията е деактивирана");
+    }
+  };
+
+  const toggleFavoritesHandler = async () => {
+    try {
+      if (!loggedUser?.id) return;
+      const isFavorited = myFavoriteIds.some(
+        (item) => item.listing_id === listing_id
+      );
+
+      if (isFavorited) {
+        setMyFavoriteIds(
+          myFavoriteIds.filter((item) => item.listing_id !== listing_id)
+        );
+        await removeFavorite({
+          userId: loggedUser.id,
+          listingId: listing_id,
+        });
+      } else {
+        setMyFavoriteIds([...myFavoriteIds, { listing_id }]);
+        await addFavorite({
+          userId: loggedUser.id,
+          listingId: listing_id,
+        });
+      }
+    } catch (error) {
+      console.error("Error toggling favorite:", error);
+    }
+  };
+
+  useEffect(() => {
+    setIsListingFavorited(
+      myFavoriteIds.some((item) => item.listing_id === listing_id)
     );
-    closeMenu();
-  };
-
-  const handleMarkInactive = () => {
-    console.log("Listing marked as inactive");
-    closeMenu();
-  };
+  }, [myFavoriteIds]);
 
   return (
-    <Provider>
-      <View className="flex-col items-center px-4 mb-14">
+    <SafeAreaView className="bg-primary">
+      <View className="flex-col items-center px-4">
         <View className="flex-row gap-3 items-start">
           <View className="justify-center items-center flex-row flex-1">
             <View className="w-[46px] h-[46px] rounded-lg border border-secondary justify-center items-center p-0.5">
-              {/* <Image
-                source={{ uri: avatar }}
-                className="w-full h-full rounded-lg"
-                resizeMode="cover"
-              /> */}
+              {/* AVATAR */}
             </View>
             <View className="justify-center flex-1 ml-3 gap-y-1">
               <Text
@@ -91,24 +127,24 @@ const ListingCard = ({
                 className="text-xs text-gray-100 font-pregular"
                 numberOfLines={1}
               >
-                {loggedUser?.email}
+                {listingCreator?.username}
               </Text>
             </View>
           </View>
 
-          <TouchableOpacity className="pt-2 mr-3">
-            <HeartIcon className="w-5 h-5 pt-2" color="red" />
+          <TouchableOpacity
+            className="p-4 mr-3"
+            onPress={toggleFavoritesHandler}
+          >
+            <HeartIcon
+              className="w-5 h-5"
+              color="red"
+              fill={isListingFavorited ? "red" : "transparent"}
+            />
           </TouchableOpacity>
 
           {loggedUser?.id === creator_id && (
-            <TouchableOpacity
-              className="pt-2"
-              onPress={openMenu}
-              onLayout={(event) => {
-                const { x, y } = event.nativeEvent.layout;
-                setMenuAnchor({ x, y });
-              }}
-            >
+            <TouchableOpacity className="p-4" onPress={showActionSheet}>
               <Image
                 source={icons.menu}
                 className="w-5 h-5"
@@ -116,52 +152,33 @@ const ListingCard = ({
               />
             </TouchableOpacity>
           )}
-
-          <Menu
-            visible={menuVisible}
-            onDismiss={closeMenu}
-            anchor={{ x: menuAnchor.x, y: menuAnchor.y + 10 }}
-          >
-            <Menu.Item onPress={handleMarkInactive} title="Де-активирай" />
-            <Menu.Item onPress={handleDelete} title="Изтрии" />
-          </Menu>
         </View>
 
-        {play ? (
-          <Video
-            source={{ uri: video }}
-            className="w-full h-60 rounded-xl mt-3"
-            resizeMode={ResizeMode.CONTAIN}
-            useNativeControls
-            shouldPlay
-            onPlaybackStatusUpdate={(status: any) => {
-              console.log("Playback status:", status);
-              if (status.didJustFinish) {
-                setPlay(false);
-              }
+        <TouchableOpacity
+          activeOpacity={0.7}
+          onPress={() => console.log("clicky Listing Card")}
+          className="w-full h-60 rounded-xl mt-3 relative justify-center items-center border-2 border-white/20"
+        >
+          <Image
+            source={{
+              uri: getImageUrl({
+                bucketName: "listings_bucket",
+                imagePath: thumbnail_url,
+              }),
             }}
-            isMuted
+            className="w-full h-full rounded-xl"
+            resizeMode="cover"
           />
-        ) : (
-          <TouchableOpacity
-            activeOpacity={0.7}
-            onPress={() => setPlay(true)}
-            className="w-full h-60 rounded-xl mt-3 relative justify-center items-center border-2 border-white/20"
-          >
-            <Image
-              source={{
-                uri: getImageUrl({
-                  bucketName: "listings_bucket",
-                  imagePath: thumbnail_url,
-                }),
-              }}
-              className="w-full h-full rounded-xl mt-3"
-              resizeMode="cover"
-            />
-          </TouchableOpacity>
-        )}
+        </TouchableOpacity>
       </View>
-    </Provider>
+      <ActionSheet
+        ref={actionSheetRef}
+        options={["Cancel", "Изтрии публикация", "Деактивирай публикация"]}
+        cancelButtonIndex={0}
+        destructiveButtonIndex={1}
+        onPress={handleActionPress}
+      />
+    </SafeAreaView>
   );
 };
 

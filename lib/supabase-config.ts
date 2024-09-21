@@ -14,13 +14,19 @@ const ExpoSecureStoreAdapter = {
     SecureStore.deleteItemAsync(key);
   },
 };
+// Cloud URL
+// const supabaseUrl = "https://qeecuxesbmiidpvycjqq.supabase.co" || "";
+// Cloud Key
+// const supabaseAnonKey =
+//   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFlZWN1eGVzYm1paWRwdnljanFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjU5NTQ4MjEsImV4cCI6MjA0MTUzMDgyMX0.WHj3hqx9bZgHFPfVDjwa8jhqiZra5ESa9FK0zwiQG0U" ||
+//   "";
 
-const supabaseUrl = "https://qeecuxesbmiidpvycjqq.supabase.co" || "";
+// Self-hosted URL
+const supabaseUrl = "http://139.162.163.228:8000" || "";
+// Self-hosted Key
 const supabaseAnonKey =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFlZWN1eGVzYm1paWRwdnljanFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjU5NTQ4MjEsImV4cCI6MjA0MTUzMDgyMX0.WHj3hqx9bZgHFPfVDjwa8jhqiZra5ESa9FK0zwiQG0U" ||
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.ewogICJyb2xlIjogImFub24iLAogICJpc3MiOiAic3VwYWJhc2UiLAogICJpYXQiOiAxNzI2Nzc5NjAwLAogICJleHAiOiAxODg0NTQ2MDAwCn0.ynnyiKRZ3bx8fRIc0ezgYqrNVMHmtNz1rTJZNpaAgPY" ||
   "";
-
-console.log(supabaseUrl, supabaseAnonKey);
 
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
   auth: {

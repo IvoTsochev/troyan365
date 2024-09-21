@@ -8,9 +8,10 @@ import { router } from "expo-router";
 type PropTypes = {
   title: string;
   subtitle: string;
+  showButton?: boolean;
 };
 
-const EmptyState = ({ title, subtitle }: PropTypes) => {
+const EmptyState = ({ title, subtitle, showButton = true }: PropTypes) => {
   return (
     <View className="justify-center items-center px-4">
       <Image
@@ -23,11 +24,13 @@ const EmptyState = ({ title, subtitle }: PropTypes) => {
       </Text>
       <Text className="font-pmedium text-sm text-gray-100">{subtitle}</Text>
 
-      <CustomButton
-        title="Създай обява"
-        handlePress={() => router.push("/create")}
-        containerStyles="w-full my-5"
-      />
+      {showButton && (
+        <CustomButton
+          title="Създай обява"
+          handlePress={() => router.push("/create")}
+          containerStyles="w-full my-5"
+        />
+      )}
     </View>
   );
 };
