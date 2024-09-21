@@ -432,3 +432,33 @@ export const getSpecificListing = async (listingId: string) => {
 
   return data;
 };
+
+// SEARCH LISTINGS
+type SearchByOptions = "title" | "creator_id" | "phone_number1";
+export const searchListings = async ({
+  query,
+  searchBy = "title",
+}: {
+  query: string | string[];
+  searchBy?: SearchByOptions;
+}) => {
+  const { data, error } = await supabase
+    .from("listings")
+    .select(
+      `
+      *,
+      users (
+        email,
+        username
+      )
+    `
+    )
+    .ilike(searchBy, `%${query}%`);
+
+  if (error) {
+    console.error("Error searching listings:", error);
+    throw error;
+  }
+
+  return data;
+};
