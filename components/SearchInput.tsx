@@ -12,7 +12,7 @@ import { icons } from "../constants";
 import { router, usePathname } from "expo-router";
 
 type PropTypes = {
-  initialQuery?: string;
+  initialQuery?: any;
 };
 
 const SearchInput = ({ initialQuery }: PropTypes) => {

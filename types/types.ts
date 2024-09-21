@@ -13,6 +13,7 @@ export type ListingType = {
   thumbnail_url: string;
   title: string;
   users: UserType;
+  description?: string;
 };
 
 export type FavoriteType = {
