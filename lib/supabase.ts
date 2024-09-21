@@ -234,6 +234,7 @@ export const createListing = async ({
     title: string;
     thumbnail_image: ImageType | null;
     phone_number1: string;
+    description?: string;
   };
   userId: string | undefined;
 }) => {
@@ -260,6 +261,7 @@ export const createListing = async ({
       phone_number1: form.phone_number1,
       thumbnail_url: uploadedThumbnail?.path || null, // Save the uploaded file path
       creator_id: userId,
+      description: form.description || null,
     },
   ]);
 

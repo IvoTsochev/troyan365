@@ -33,11 +33,12 @@ const FormField = ({
           placeholder={placeholder}
           placeholderTextColor="#7B7B8B"
           onChangeText={handleChangeText}
-          secureTextEntry={title === "Password" && !showPassword}
+          secureTextEntry={title === "Парола" && !showPassword}
+          multiline={title === "Описание"}
           {...props}
         />
 
-        {title === "Password" && (
+        {title === "Парола" && (
           <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
             <Image
               source={!showPassword ? icons.eye : icons.eyeHide}

@@ -28,10 +28,12 @@ const Create = () => {
     title: string;
     thumbnail_image: ImageType | null;
     phone_number1: string;
+    description?: string;
   }>({
     title: "",
     thumbnail_image: null,
     phone_number1: "",
+    description: "",
   });
 
   const openPicker = async ({
@@ -88,6 +90,7 @@ const Create = () => {
         title: "",
         thumbnail_image: null,
         phone_number1: "",
+        description: "",
       });
       setUploading(false);
     }
@@ -103,6 +106,16 @@ const Create = () => {
           value={form.title}
           handleChangeText={(e) => {
             setForm({ ...form, title: e });
+          }}
+          otherStyles={`mt-10 
+          }`}
+        />
+
+        <FormField
+          title="Описание"
+          value={form.description || ""}
+          handleChangeText={(e) => {
+            setForm({ ...form, description: e });
           }}
           otherStyles={`mt-10 
           }`}
