@@ -19,6 +19,18 @@ export const supabaseBucketUrl = `${supabaseBaseUrl}/${supabaseBucketPath}/`;
 
 // e.g. http://139.162.163.228:8000/storage/v1/object/public/listings_bucket/listings/ed368b56-5598-49bf-bbd6-51e66ee457d2/64bca54a-ef4b-4dc6-bfec-b39e0c95cbcd/IMG_0015.jpg
 
+export const GLOBALS = {
+  TABLES: {
+    USERS: "users",
+    LISTINGS: "listings",
+    FAVORITES: "favorites",
+  },
+  BUCKETS: {
+    AVATARS: "avatars_bucket",
+    LISTINGS: "listings_bucket",
+  },
+};
+
 // GET IMAGE URL
 export const getImageUrl = ({
   bucketName,
@@ -40,7 +52,7 @@ const insertUserData = async ({
   email: string;
   username: string;
 }) => {
-  const { data, error } = await supabase.from("users").insert([
+  const { data, error } = await supabase.from(GLOBALS.TABLES.USERS).insert([
     {
       user_id: userId,
       email: email,
@@ -119,6 +131,25 @@ export const signOut = async () => {
   }
 };
 
+// GET USER DATA FROM USERS TABLE
+export const getUserData = async ({ userId }: { userId: string }) => {
+  if (!userId) {
+    throw new Error("User not found");
+  }
+
+  const { data, error } = await supabase
+    .from(GLOBALS.TABLES.USERS)
+    .select("*")
+    .eq("user_id", userId)
+    .single();
+
+  if (error) {
+    throw error;
+  }
+
+  return data;
+};
+
 // GET USER SESSION
 export const getUserSession = async () => {
   const { data, error } = await supabase.auth.getSession();
@@ -137,13 +168,14 @@ export const getUserListings = async (userId: string | undefined) => {
   }
 
   const { data, error } = await supabase
-    .from("listings")
+    .from(GLOBALS.TABLES.LISTINGS)
     .select(
       `
       *,
       users (
         email,
-        username
+        username,
+        avatar_url
       )
       `
     )
@@ -158,7 +190,35 @@ export const getUserListings = async (userId: string | undefined) => {
 };
 
 // COMPRESS IMAGE
-const compressImage = async ({ imageUri }: { imageUri: string }) => {
+const compressImage = async ({
+  imageUri,
+  compressionLevel = "medium",
+}: {
+  imageUri: string;
+  compressionLevel?: "low" | "medium" | "high";
+}) => {
+  let maxWidth, maxHeight, compressionRatio;
+
+  switch (compressionLevel) {
+    case "low":
+      maxWidth = 1600;
+      maxHeight = 1600;
+      compressionRatio = 0.9;
+      break;
+    case "medium":
+      maxWidth = 1200;
+      maxHeight = 1200;
+      compressionRatio = 0.7;
+      break;
+    case "high":
+      maxWidth = 800;
+      maxHeight = 800;
+      compressionRatio = 0.5;
+      break;
+    default:
+      throw new Error("Invalid compression level");
+  }
+
   try {
     const imageInfo = await ImageManipulator.manipulateAsync(imageUri, [], {});
 
@@ -167,13 +227,13 @@ const compressImage = async ({ imageUri }: { imageUri: string }) => {
 
     const isPortrait = originalHeight > originalWidth;
 
-    const targetWidth = isPortrait ? 800 : 1200;
-    const targetHeight = isPortrait ? 1200 : 800;
+    const targetWidth = isPortrait ? maxWidth : maxHeight;
+    const targetHeight = isPortrait ? maxHeight : maxWidth;
 
     const result = await ImageManipulator.manipulateAsync(
       imageUri,
       [{ resize: { width: targetWidth } }],
-      { compress: 0.8, format: ImageManipulator.SaveFormat.JPEG }
+      { compress: compressionRatio, format: ImageManipulator.SaveFormat.JPEG }
     );
 
     return result.uri;
@@ -204,7 +264,10 @@ export const uploadFile = async ({
     throw new Error("Missing file, userId or listingId");
   }
 
-  const compressedImageUri = await compressImage({ imageUri: file.uri });
+  const compressedImageUri = await compressImage({
+    imageUri: file.uri,
+    compressionLevel: "medium",
+  });
   const fileBlob = await uriToBlob({ uri: compressedImageUri });
   const arrayBuffer = await new Response(fileBlob).arrayBuffer();
 
@@ -223,6 +286,103 @@ export const uploadFile = async ({
   }
 
   return data;
+};
+
+export const deleteAvatar = async ({ userId }: { userId: string }) => {
+  if (!userId) {
+    throw new Error("Missing userId");
+  }
+
+  const getCurrentAvatar = await supabase
+    .from(GLOBALS.TABLES.USERS)
+    .select("avatar_url")
+    .eq("user_id", userId)
+    .single();
+
+  if (getCurrentAvatar.error) {
+    throw getCurrentAvatar.error;
+  }
+
+  const avatarName = getCurrentAvatar.data?.avatar_url?.split("/").pop();
+
+  const path = `${userId}/${avatarName}`;
+
+  const { data, error } = await supabase.storage
+    .from(GLOBALS.BUCKETS.AVATARS)
+    .remove([path]);
+
+  if (error) {
+    console.error("Error deleting avatar from storage:", error);
+    throw error;
+  }
+
+  const { data: updateUsersData, error: updateUsersError } = await supabase
+    .from(GLOBALS.TABLES.USERS)
+    .update({ avatar_url: null })
+    .eq("user_id", userId);
+
+  if (updateUsersError) {
+    console.error("Error updating users table:", updateUsersError);
+    throw updateUsersError;
+  }
+
+  return { data, updateUsersData };
+};
+
+// UPLOAD AVATAR
+export const uploadAvatar = async ({
+  userId,
+  file,
+}: {
+  userId: string;
+  file: any;
+}) => {
+  if (!file || !userId) {
+    throw new Error("Missing file or userId");
+  }
+
+  const compressedImageUri = await compressImage({
+    imageUri: file.uri,
+    compressionLevel: "high",
+  });
+  const fileBlob = await uriToBlob({ uri: compressedImageUri });
+  const arrayBuffer = await new Response(fileBlob).arrayBuffer();
+
+  const fileName = `${new Date().getTime()}_avatar.jpg`;
+  const pathToUpload = `${userId}/${fileName}`;
+
+  await deleteAvatar({ userId });
+
+  const { data: uploadData, error: uploadError } = await supabase.storage
+    .from(GLOBALS.BUCKETS.AVATARS)
+    .upload(pathToUpload, arrayBuffer, {
+      contentType: "image/jpeg",
+      upsert: true,
+    });
+
+  if (uploadError) {
+    throw uploadError;
+  }
+
+  // Construct the public URL for the avatar
+  const avatarUrl = `${
+    supabase.storage.from(GLOBALS.BUCKETS.AVATARS).getPublicUrl(pathToUpload)
+      .data.publicUrl
+  }`;
+
+  // Update the user's avatar URL in the users table
+  const { data: updateData, error: updateError } = await supabase
+    .from(GLOBALS.TABLES.USERS)
+    .update({ avatar_url: avatarUrl })
+    .eq("user_id", userId)
+    .select()
+    .single();
+
+  if (updateError) {
+    throw updateError;
+  }
+
+  return { uploadData, updateData };
 };
 
 // CREATE LISTING
@@ -254,12 +414,12 @@ export const createListing = async ({
     });
   }
 
-  const { data, error } = await supabase.from("listings").insert([
+  const { data, error } = await supabase.from(GLOBALS.TABLES.LISTINGS).insert([
     {
       listing_id: listingId.toString(),
       title: form.title,
       phone_number1: form.phone_number1,
-      thumbnail_url: uploadedThumbnail?.path || null, // Save the uploaded file path
+      thumbnail_url: uploadedThumbnail?.path || null,
       creator_id: userId,
       description: form.description || null,
     },
@@ -275,13 +435,14 @@ export const createListing = async ({
 // GET LATEST LISTINGS
 export const getLatestListings = async () => {
   const { data, error } = await supabase
-    .from("listings")
+    .from(GLOBALS.TABLES.LISTINGS)
     .select(
       `
       *,
       users (
         email,
-        username
+        username,
+        avatar_url
       )
     `
     )
@@ -309,7 +470,7 @@ export const deleteListingFolder = async ({
   const path = `listings/${loggedUserId}/${listingId}`;
 
   const { data: files, error: listError } = await supabase.storage
-    .from("listings_bucket")
+    .from(GLOBALS.BUCKETS.LISTINGS)
     .list(path, {
       limit: 15,
     });
@@ -323,7 +484,7 @@ export const deleteListingFolder = async ({
     const filePaths = files.map((file) => `${path}/${file.name}`);
     // Delete all files in the folder
     const { error: deleteError } = await supabase.storage
-      .from("listings_bucket")
+      .from(GLOBALS.BUCKETS.LISTINGS)
       .remove(filePaths);
 
     if (deleteError) {
@@ -338,7 +499,7 @@ export const deleteListing = async ({ listingId }: { listingId: string }) => {
     throw new Error("Missing listingId");
   }
   const { data, error } = await supabase
-    .from("listings")
+    .from(GLOBALS.TABLES.LISTINGS)
     .delete()
     .eq("listing_id", listingId);
 
@@ -358,7 +519,7 @@ export const addFavorite = async ({
   listingId: string;
 }) => {
   const { data, error } = await supabase
-    .from("favorites")
+    .from(GLOBALS.TABLES.FAVORITES)
     .insert([{ user_id: userId, listing_id: listingId }]);
 
   if (error) {
@@ -378,7 +539,7 @@ export const removeFavorite = async ({
   listingId: string;
 }) => {
   const { data, error } = await supabase
-    .from("favorites")
+    .from(GLOBALS.TABLES.FAVORITES)
     .delete()
     .eq("user_id", userId)
     .eq("listing_id", listingId);
@@ -398,7 +559,7 @@ export const getMyFavoriteListingIds = async ({
   userId: string;
 }) => {
   const { data, error } = await supabase
-    .from("favorites")
+    .from(GLOBALS.TABLES.FAVORITES)
     .select(`listing_id`)
     .eq("user_id", userId);
 
@@ -413,7 +574,7 @@ export const getMyFavoriteListingIds = async ({
 // GET SPECIFIC LISTING
 export const getSpecificListing = async (listingId: string) => {
   const { data, error } = await supabase
-    .from("listings")
+    .from(GLOBALS.TABLES.LISTINGS)
     .select(
       `
       *,
@@ -443,7 +604,7 @@ export const searchListings = async ({
   searchBy?: SearchByOptions;
 }) => {
   const { data, error } = await supabase
-    .from("listings")
+    .from(GLOBALS.TABLES.LISTINGS)
     .select(
       `
       *,
