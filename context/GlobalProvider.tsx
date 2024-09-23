@@ -5,9 +5,15 @@ import {
   useEffect,
   PropsWithChildren,
 } from "react";
-import { getUserSession, getMyFavoriteListingIds } from "../lib/supabase";
+// Utils
+import {
+  getUserSession,
+  getMyFavoriteListingIds,
+  getUserData,
+} from "../lib/supabase";
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "../lib/supabase-config";
+import { UserType } from "../types/types";
 
 type GlobalContextType = {
   isLogged: boolean;
@@ -24,6 +30,8 @@ type GlobalContextType = {
   setShouldRefetchProfile: (shouldRefetchProfile: boolean) => void;
   myFavoriteIds: { listing_id: string }[];
   setMyFavoriteIds: (favorites: { listing_id: string }[]) => void;
+  userData: UserType | undefined;
+  setUserData: (user: any) => void;
 };
 
 const GlobalContext = createContext<GlobalContextType>({
@@ -41,6 +49,8 @@ const GlobalContext = createContext<GlobalContextType>({
   setShouldRefetchProfile: () => {},
   myFavoriteIds: [],
   setMyFavoriteIds: () => {},
+  userData: undefined,
+  setUserData: () => {},
 });
 
 export const useGlobalContext = () => useContext(GlobalContext);
@@ -55,6 +65,7 @@ const GlobalProvider = ({ children }: PropsWithChildren) => {
   const [myFavoriteIds, setMyFavoriteIds] = useState<{ listing_id: string }[]>(
     []
   );
+  const [userData, setUserData] = useState<UserType | undefined>();
 
   useEffect(() => {
     const fetchUserSession = async () => {
@@ -86,7 +97,15 @@ const GlobalProvider = ({ children }: PropsWithChildren) => {
         }
       };
 
+      const fetchUserData = async () => {
+        const data = await getUserData({ userId: session.user.id });
+        if (data) {
+          setUserData(data);
+        }
+      };
+
       fetchFavorites();
+      fetchUserData();
     }
   }, [session]);
 
@@ -107,6 +126,8 @@ const GlobalProvider = ({ children }: PropsWithChildren) => {
         setShouldRefetchProfile,
         myFavoriteIds,
         setMyFavoriteIds,
+        userData,
+        setUserData,
       }}
     >
       {children}

@@ -18,7 +18,7 @@ const Home = () => {
   const [listingsData, setListingsData] = useState<ListingType[]>([]);
   const [refreshing, setRefreshing] = useState(false);
 
-  const { loggedUser, shouldRefetchHome, setShouldRefetchHome } =
+  const { loggedUser, shouldRefetchHome, setShouldRefetchHome, userData } =
     useGlobalContext();
 
   useEffect(() => {
@@ -63,11 +63,21 @@ const Home = () => {
                 </Text>
               </View>
               <View className="mt-1.5 ">
-                <Image
-                  source={images.logoSmall}
-                  className="w-9 h-10 rounded-full"
-                  resizeMode="contain"
-                />
+                {userData?.avatar_url ? (
+                  <Image
+                    source={{
+                      uri: userData?.avatar_url,
+                    }}
+                    className="w-9 h-10 rounded-full"
+                    resizeMode="cover"
+                  />
+                ) : (
+                  <Image
+                    source={images.logoSmall}
+                    className="w-9 h-10 rounded-full"
+                    resizeMode="contain"
+                  />
+                )}
               </View>
             </View>
 
