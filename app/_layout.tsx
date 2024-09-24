@@ -52,6 +52,19 @@ const RootLayout = () => {
             headerShown: false,
           }}
         />
+        <Stack.Screen
+          name="listing/[listingId]"
+          options={{
+            headerShown: true,
+            headerTintColor: "#FFA001",
+            headerBackTitle: "Назад",
+            headerStyle: {
+              backgroundColor: "#161622",
+            },
+            title: "Обява",
+            animation: "default",
+          }}
+        />
       </Stack>
     </GlobalProvider>
   );

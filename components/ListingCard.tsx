@@ -15,6 +15,7 @@ import {
   removeFavorite,
 } from "../lib/supabase";
 import ActionSheet from "react-native-actionsheet";
+import { router } from "expo-router";
 // TS
 import { ListingType } from "../types/types";
 
@@ -111,7 +112,10 @@ const ListingCard = ({
 
   return (
     <SafeAreaView className="bg-primary">
-      <View className="flex-col items-center px-4">
+      <TouchableOpacity
+        className="flex-col items-center px-4"
+        onPress={() => router.push(`/listing/${listing_id}`)}
+      >
         <View className="flex-row gap-3 items-start">
           <View className="justify-center items-center flex-row flex-1">
             <View className="w-[46px] h-[46px] rounded-lg border border-secondary justify-center items-center p-0.5">
@@ -163,11 +167,7 @@ const ListingCard = ({
           )}
         </View>
 
-        <TouchableOpacity
-          activeOpacity={0.7}
-          onPress={() => console.log("clicky Listing Card")}
-          className="w-full h-60 rounded-xl mt-3 relative justify-center items-center border-2 border-white/20"
-        >
+        <View className="w-full h-60 rounded-xl mt-3 relative justify-center items-center border-2 border-white/20">
           <Image
             source={{
               uri: getImageUrl({
@@ -178,8 +178,8 @@ const ListingCard = ({
             className="w-full h-full rounded-xl"
             resizeMode="cover"
           />
-        </TouchableOpacity>
-      </View>
+        </View>
+      </TouchableOpacity>
       <ActionSheet
         ref={actionSheetRef}
         options={["Cancel", "Изтрии публикация", "Деактивирай публикация"]}
