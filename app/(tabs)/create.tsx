@@ -1,28 +1,31 @@
-import { useState } from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  TouchableOpacity,
-  Image,
-  Alert,
-} from "react-native";
-import React from "react";
+import React, { useState, useRef } from "react";
+import { View, Text, TouchableOpacity, Image, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import FormField from "../../components/FormField";
-import { icons } from "../../constants";
-import CustomButton from "../../components/CustomButton";
-import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
+// Utils
+import * as ImagePicker from "expo-image-picker";
 import { useGlobalContext } from "../../context/GlobalProvider";
 import { createListing } from "../../lib/supabase";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import ActionSheet from "react-native-actionsheet";
+import * as Haptics from "expo-haptics";
+import { Camera } from "expo-camera";
+// Components
+import FormField from "../../components/FormField";
+import { icons } from "../../constants";
+import CustomButton from "../../components/CustomButton";
 
 type ImageType = ImagePicker.ImagePickerAsset;
 
 const Create = () => {
-  const { loggedUser, session, setShouldRefetchHome, setShouldRefetchProfile } =
-    useGlobalContext();
+  const {
+    loggedUser,
+    session,
+    setShouldRefetchHome,
+    setShouldRefetchProfile,
+    hasCameraPermission,
+    setHasCameraPermission,
+  } = useGlobalContext();
   const [uploading, setUploading] = useState(false);
   const [form, setForm] = useState<{
     title: string;
@@ -35,6 +38,38 @@ const Create = () => {
     phone_number1: "",
     description: "",
   });
+
+  const actionSheetRef = useRef<ActionSheet | null>(null);
+
+  const takePhoto = async () => {
+    if (hasCameraPermission === false) {
+      const { status } = await Camera.requestCameraPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert(
+          "Permission Denied",
+          "Camera permission is required to take photos."
+        );
+        return;
+      }
+      setHasCameraPermission(true);
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      const photo = result.assets[0];
+      const fileName = `${new Date().getTime()}_image.jpg`;
+
+      setForm({
+        ...form,
+        thumbnail_image: { ...photo, name: fileName },
+      });
+    }
+  };
 
   const openPicker = async ({
     selectType,
@@ -96,6 +131,23 @@ const Create = () => {
     }
   };
 
+  const handleActionPress = async (index: number) => {
+    if (index === 1) {
+      openPicker({ selectType: "image" });
+    }
+
+    if (index === 2) {
+      takePhoto();
+    }
+  };
+
+  const showActionSheet = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    if (actionSheetRef.current !== null) {
+      actionSheetRef.current.show();
+    }
+  };
+
   return (
     <SafeAreaView className="bg-primary h-full">
       <KeyboardAwareScrollView className="px-4 my-6" extraHeight={120}>
@@ -127,7 +179,7 @@ const Create = () => {
           </Text>
           <TouchableOpacity
             onPress={() => {
-              openPicker({ selectType: "image" });
+              showActionSheet();
             }}
           >
             {form.thumbnail_image ? (
@@ -173,6 +225,12 @@ const Create = () => {
           isLoading={uploading}
         />
       </KeyboardAwareScrollView>
+      <ActionSheet
+        ref={actionSheetRef}
+        options={["Cancel", "Снимка от галерия", "Направи снимка"]}
+        cancelButtonIndex={0}
+        onPress={handleActionPress}
+      />
     </SafeAreaView>
   );
 };

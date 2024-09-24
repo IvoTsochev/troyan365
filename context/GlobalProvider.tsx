@@ -32,6 +32,8 @@ type GlobalContextType = {
   setMyFavoriteIds: (favorites: { listing_id: string }[]) => void;
   userData: UserType | undefined;
   setUserData: (user: any) => void;
+  hasCameraPermission: boolean;
+  setHasCameraPermission: (hasCameraPermission: boolean) => void;
 };
 
 const GlobalContext = createContext<GlobalContextType>({
@@ -51,6 +53,8 @@ const GlobalContext = createContext<GlobalContextType>({
   setMyFavoriteIds: () => {},
   userData: undefined,
   setUserData: () => {},
+  hasCameraPermission: false,
+  setHasCameraPermission: () => {},
 });
 
 export const useGlobalContext = () => useContext(GlobalContext);
@@ -66,6 +70,7 @@ const GlobalProvider = ({ children }: PropsWithChildren) => {
     []
   );
   const [userData, setUserData] = useState<UserType | undefined>();
+  const [hasCameraPermission, setHasCameraPermission] = useState(false);
 
   useEffect(() => {
     const fetchUserSession = async () => {
@@ -128,6 +133,8 @@ const GlobalProvider = ({ children }: PropsWithChildren) => {
         setMyFavoriteIds,
         userData,
         setUserData,
+        hasCameraPermission,
+        setHasCameraPermission,
       }}
     >
       {children}
