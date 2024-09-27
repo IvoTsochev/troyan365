@@ -74,6 +74,8 @@ const ListingCard = ({
       }
     } else if (index === 2) {
       Alert.alert("Деактивирана", "Публикацията е деактивирана");
+    } else if (index === 3) {
+      router.push(`/edit/${listing_id}`);
     }
   };
 
@@ -182,7 +184,12 @@ const ListingCard = ({
       </TouchableOpacity>
       <ActionSheet
         ref={actionSheetRef}
-        options={["Cancel", "Изтрии публикация", "Деактивирай публикация"]}
+        options={[
+          "Cancel",
+          "Изтрии публикация",
+          "Деактивирай публикация",
+          "Редактирай публикация",
+        ]}
         cancelButtonIndex={0}
         destructiveButtonIndex={1}
         onPress={handleActionPress}

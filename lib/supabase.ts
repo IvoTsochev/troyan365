@@ -275,7 +275,7 @@ export const uploadFile = async ({
   const pathToUpload = `listings/${userId}/${listingId}/${fileName}`;
 
   const { data, error } = await supabase.storage
-    .from("listings_bucket")
+    .from(GLOBALS.BUCKETS.LISTINGS)
     .upload(pathToUpload, arrayBuffer, {
       contentType: "image/jpeg",
       upsert: false,
@@ -432,6 +432,86 @@ export const createListing = async ({
   return data;
 };
 
+// LIST FILES IN A BUCKET FOLDER
+export const listFiles = async ({
+  bucket,
+  folderPath,
+}: {
+  bucket: string;
+  folderPath: string;
+}) => {
+  const { data, error } = await supabase.storage
+    .from(bucket)
+    .list(folderPath, { limit: 5 }); // Adjust the limit based on your folder's file count
+
+  if (error) {
+    throw error;
+  }
+
+  return data; // Returns an array of files
+};
+
+// UPDATE LISTING
+export const updateListing = async ({
+  listingId,
+  form,
+  userId,
+}: {
+  listingId: any;
+  form: any;
+  userId: string;
+}) => {
+  if (!userId || !listingId) {
+    throw new Error("User not found");
+  }
+
+  let newThumbnailUrl = null;
+
+  let updateObj = {
+    title: form.title,
+    phone_number1: form.phone_number1,
+    description: form.description,
+    thumbnail_url: "",
+  };
+
+  if (form.thumbnail_url.uri) {
+    console.log("inside form.thumbnail_url.uri");
+    const listFilesInThumbnailFolder = await listFiles({
+      bucket: GLOBALS.BUCKETS.LISTINGS,
+      folderPath: `listings/${userId}/${listingId}`,
+    });
+    const path = `listings/${userId}/${listingId}/${listFilesInThumbnailFolder[0].name}`;
+
+    const { data, error } = await supabase.storage
+      .from(GLOBALS.BUCKETS.LISTINGS)
+      .remove([path]);
+
+    if (error) {
+      throw new Error("Error deleting thumbnail from storage");
+    }
+
+    newThumbnailUrl = await uploadFile({
+      file: form.thumbnail_url,
+      userId,
+      listingId: listingId.toString(),
+    });
+
+    updateObj.thumbnail_url = newThumbnailUrl?.path;
+  } else if (typeof form.thumbnail_url === "string") {
+    updateObj.thumbnail_url = form.thumbnail_url;
+  }
+
+  const { data, error } = await supabase
+    .from(GLOBALS.TABLES.LISTINGS)
+    .update(updateObj)
+    .eq("listing_id", listingId)
+    .eq("creator_id", userId);
+
+  if (error) {
+    throw new Error("Error updating listing");
+  }
+};
+
 // GET LATEST LISTINGS
 export const getLatestListings = async () => {
   const { data, error } = await supabase
@@ -572,7 +652,7 @@ export const getMyFavoriteListingIds = async ({
 };
 
 // GET SPECIFIC LISTING
-export const getSpecificListing = async (listingId: string) => {
+export const getSpecificListing = async (listingId: any) => {
   const { data, error } = await supabase
     .from(GLOBALS.TABLES.LISTINGS)
     .select(

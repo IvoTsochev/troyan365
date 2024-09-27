@@ -65,6 +65,19 @@ const RootLayout = () => {
             animation: "default",
           }}
         />
+        <Stack.Screen
+          name="edit/[listingId]"
+          options={{
+            headerShown: true,
+            headerTintColor: "#FFA001",
+            headerBackTitle: "Назад",
+            headerStyle: {
+              backgroundColor: "#161622",
+            },
+            title: "Редактиране",
+            animation: "default",
+          }}
+        />
       </Stack>
     </GlobalProvider>
   );
