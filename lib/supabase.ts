@@ -61,7 +61,7 @@ const insertUserData = async ({
   ]);
 
   if (error) {
-    throw error;
+    throw new Error("Unable to add user data. Please try again.");
   }
 
   return data;
@@ -84,7 +84,7 @@ export const signUp = async (
   });
 
   if (error) {
-    throw error;
+    throw new Error("Sign up failed. Please check your details and try again.");
   }
 
   const userId = data?.user?.id;
@@ -113,7 +113,7 @@ export const signIn = async (email: string, password: string) => {
   });
 
   if (error) {
-    throw error;
+    throw new Error("Invalid credentials. Please try again.");
   }
 
   return {
@@ -127,7 +127,7 @@ export const signOut = async () => {
   const { error } = await supabase.auth.signOut();
 
   if (error) {
-    throw new Error("Error signing out", error);
+    throw new Error("Error signing out. Please try again.");
   }
 };
 
@@ -144,7 +144,7 @@ export const getUserData = async ({ userId }: { userId: string }) => {
     .single();
 
   if (error) {
-    throw error;
+    throw new Error("Unable to fetch user data. Please try again later.");
   }
 
   return data;
@@ -174,7 +174,9 @@ export const loadMoreListings = async ({
     .range(currentPage * 5, (currentPage + 1) * 5 - 1);
 
   if (error) {
-    throw new Error("Error loading more listings");
+    throw new Error(
+      "Error loading more listings. Please refresh and try again."
+    );
   }
 
   return data;
@@ -202,7 +204,7 @@ export const getUserListings = async (userId: string | undefined) => {
     .order("created_at", { ascending: false });
 
   if (error) {
-    throw error;
+    throw new Error("Unable to load user listings. Please try again later.");
   }
 
   return data;
@@ -257,8 +259,7 @@ const compressImage = async ({
 
     return result.uri;
   } catch (error) {
-    console.error("Error resizing image:", error);
-    throw error;
+    throw new Error("Unable to resize image. Please try again.");
   }
 };
 
@@ -301,7 +302,7 @@ export const uploadFile = async ({
     });
 
   if (error) {
-    throw error;
+    throw new Error("Error uploading file. Please try again.");
   }
 
   return data;
@@ -445,7 +446,9 @@ export const createListing = async ({
   ]);
 
   if (error) {
-    throw error;
+    throw new Error(
+      "Unable to create listing. Please check your details and try again."
+    );
   }
 
   return data;
@@ -603,7 +606,7 @@ export const deleteListing = async ({ listingId }: { listingId: string }) => {
     .eq("listing_id", listingId);
 
   if (error) {
-    throw error;
+    throw new Error("Unable to delete listing. Please try again later.");
   }
 
   return data;
@@ -622,8 +625,7 @@ export const addFavorite = async ({
     .insert([{ user_id: userId, listing_id: listingId }]);
 
   if (error) {
-    console.error("Error adding to favorites:", error);
-    throw error;
+    throw new Error("Unable to add to favorites. Please try again.");
   }
 
   return data;
@@ -644,8 +646,7 @@ export const removeFavorite = async ({
     .eq("listing_id", listingId);
 
   if (error) {
-    console.error("Error removing from favorites:", error);
-    throw error;
+    throw new Error("Unable to remove from favorites. Please try again.");
   }
 
   return data;
