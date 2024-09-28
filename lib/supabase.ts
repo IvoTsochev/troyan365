@@ -127,7 +127,7 @@ export const signOut = async () => {
   const { error } = await supabase.auth.signOut();
 
   if (error) {
-    throw error;
+    throw new Error("Error signing out", error);
   }
 };
 
@@ -156,6 +156,25 @@ export const getUserSession = async () => {
 
   if (error) {
     throw error;
+  }
+
+  return data;
+};
+
+// LOAD MORE LISTINGS
+export const loadMoreListings = async ({
+  currentPage,
+}: {
+  currentPage: number;
+}) => {
+  const { data, error } = await supabase
+    .from(GLOBALS.TABLES.LISTINGS)
+    .select("*")
+    .order("created_at", { ascending: false })
+    .range(currentPage * 5, (currentPage + 1) * 5 - 1);
+
+  if (error) {
+    throw new Error("Error loading more listings");
   }
 
   return data;

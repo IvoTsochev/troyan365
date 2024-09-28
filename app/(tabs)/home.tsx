@@ -10,13 +10,14 @@ import ListingCard from "../../components/ListingCard";
 import { images } from "../../constants";
 // Utils
 import { useGlobalContext } from "../../context/GlobalProvider";
-import { getLatestListings } from "../../lib/supabase";
+import { getLatestListings, loadMoreListings } from "../../lib/supabase";
 // TS
 import { ListingType } from "../../types/types";
 
 const Home = () => {
   const [listingsData, setListingsData] = useState<ListingType[]>([]);
   const [refreshing, setRefreshing] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const { loggedUser, shouldRefetchHome, setShouldRefetchHome, userData } =
     useGlobalContext();
@@ -36,6 +37,16 @@ const Home = () => {
     const data = await getLatestListings();
     if (data) {
       setListingsData(data);
+    }
+  };
+
+  const fetchMoreData = async () => {
+    const data = await loadMoreListings({
+      currentPage,
+    });
+    if (data) {
+      setListingsData((prevData) => [...prevData, ...data]);
+      setCurrentPage(currentPage + 1);
     }
   };
 
@@ -105,6 +116,8 @@ const Home = () => {
             tintColor={"#FF9C01"}
           />
         }
+        onEndReached={fetchMoreData}
+        onEndReachedThreshold={0.5}
       />
     </SafeAreaView>
   );

@@ -21,16 +21,9 @@ import CustomButton from "../../components/CustomButton";
 // Utils
 import { useGlobalContext } from "../../context/GlobalProvider";
 import { icons } from "../../constants";
-import {
-  signOut,
-  getUserListings,
-  getImageUrl,
-  deleteAvatar,
-} from "../../lib/supabase";
+import { signOut, getUserListings, deleteAvatar } from "../../lib/supabase";
 import { ListingType, UserType } from "../../types/types";
 import { uploadAvatar } from "../../lib/supabase";
-
-type ImageType = ImagePicker.ImagePickerAsset;
 
 const Profile = () => {
   const [myListings, setMyListings] = useState<ListingType[]>([]);
@@ -42,7 +35,6 @@ const Profile = () => {
     setSession,
     setShouldRefetchProfile,
     shouldRefetchProfile,
-    setShouldRefetchHome,
     userData,
     setUserData,
   } = useGlobalContext();
@@ -58,7 +50,9 @@ const Profile = () => {
   };
 
   useEffect(() => {
-    fetchData();
+    if (loggedUser) {
+      fetchData();
+    }
   }, []);
 
   useEffect(() => {
