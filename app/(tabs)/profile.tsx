@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   View,
   FlatList,
@@ -31,8 +31,8 @@ const Profile = () => {
     loggedUser,
     setLoggedUser,
     setIsLogged,
-    session,
-    setSession,
+    userSession,
+    setUserSession,
     setShouldRefetchProfile,
     shouldRefetchProfile,
     userData,
@@ -43,9 +43,16 @@ const Profile = () => {
   const actionSheetRef = useRef<ActionSheet | null>(null);
 
   const fetchData = async () => {
-    const data = await getUserListings(loggedUser?.id);
-    if (data) {
-      setMyListings(data);
+    setRefreshing(true);
+    try {
+      const data = await getUserListings(loggedUser?.id);
+      if (data) {
+        setMyListings(data);
+      }
+    } catch (error: any) {
+      Alert.alert("Error", error.message);
+    } finally {
+      setRefreshing(false);
     }
   };
 
@@ -65,13 +72,14 @@ const Profile = () => {
   const logout = async () => {
     await signOut();
     setLoggedUser(undefined);
-    setSession(null);
+    setUserSession(null);
     setIsLogged(false);
+    setUserData(undefined);
 
     router.replace("/home");
   };
 
-  if (!session) {
+  if (!userSession) {
     return (
       <SafeAreaView className="bg-primary h-full justify-center items-center">
         <Text className="text-white text-xl mb-4">
@@ -145,11 +153,9 @@ const Profile = () => {
     }
   };
 
-  const onRefresh = useCallback(async () => {
-    setRefreshing(true);
+  const onRefresh = async () => {
     await fetchData();
-    setRefreshing(false);
-  }, []);
+  };
 
   return (
     <SafeAreaView className="bg-primary h-full">
