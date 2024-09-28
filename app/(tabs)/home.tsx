@@ -1,6 +1,14 @@
-import React, { useState, useCallback, useEffect } from "react";
-import { View, Text, FlatList, Image, RefreshControl } from "react-native";
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  FlatList,
+  Image,
+  RefreshControl,
+  TouchableOpacity,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { router } from "expo-router";
 // Components
 import SearchInput from "../../components/SearchInput";
 import Trending from "../../components/Trending";
@@ -22,6 +30,20 @@ const Home = () => {
   const { loggedUser, shouldRefetchHome, setShouldRefetchHome, userData } =
     useGlobalContext();
 
+  const fetchData = async () => {
+    setRefreshing(true);
+    try {
+      const data = await getLatestListings();
+      if (data) {
+        setListingsData(data);
+      }
+    } catch (error: any) {
+      console.log("Error fetching listings", error.message);
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -33,13 +55,6 @@ const Home = () => {
     }
   }, [shouldRefetchHome]);
 
-  const fetchData = async () => {
-    const data = await getLatestListings();
-    if (data) {
-      setListingsData(data);
-    }
-  };
-
   const fetchMoreData = async () => {
     const data = await loadMoreListings({
       currentPage,
@@ -50,11 +65,9 @@ const Home = () => {
     }
   };
 
-  const onRefresh = useCallback(async () => {
-    setRefreshing(true);
+  const onRefresh = async () => {
     await fetchData();
-    setRefreshing(false);
-  }, []);
+  };
 
   return (
     <SafeAreaView className="bg-primary h-full">
@@ -75,13 +88,15 @@ const Home = () => {
               </View>
               <View className="mt-1.5 ">
                 {userData?.avatar_url ? (
-                  <Image
-                    source={{
-                      uri: userData?.avatar_url,
-                    }}
-                    className="w-9 h-10 rounded-full"
-                    resizeMode="cover"
-                  />
+                  <TouchableOpacity onPress={() => router.push("/profile")}>
+                    <Image
+                      source={{
+                        uri: userData?.avatar_url,
+                      }}
+                      className="w-9 h-10 rounded-full"
+                      resizeMode="cover"
+                    />
+                  </TouchableOpacity>
                 ) : (
                   <Image
                     source={images.logoSmall}

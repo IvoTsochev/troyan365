@@ -20,7 +20,7 @@ type ImageType = ImagePicker.ImagePickerAsset;
 const Create = () => {
   const {
     loggedUser,
-    session,
+    userSession,
     setShouldRefetchHome,
     setShouldRefetchProfile,
     hasCameraPermission,
@@ -212,14 +212,14 @@ const Create = () => {
         />
         <CustomButton
           title={
-            session && uploading
+            userSession && uploading
               ? "Публикуване..."
-              : session
+              : userSession
               ? "Публикувай обява"
               : "Влез"
           }
           handlePress={
-            session ? createListingHandler : () => router.push("/sign-in")
+            userSession ? createListingHandler : () => router.push("/sign-in")
           }
           containerStyles="mt-7"
           isLoading={uploading}

@@ -6,11 +6,7 @@ import {
   PropsWithChildren,
 } from "react";
 // Utils
-import {
-  getUserSession,
-  getMyFavoriteListingIds,
-  getUserData,
-} from "../lib/supabase";
+import { getMyFavoriteListingIds, getUserData } from "../lib/supabase";
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "../lib/supabase-config";
 import { UserType } from "../types/types";
@@ -20,8 +16,8 @@ type GlobalContextType = {
   setIsLogged: (isLogged: boolean) => void;
   loggedUser: User | undefined;
   setLoggedUser: (user: User | undefined) => void;
-  session: Session | null;
-  setSession: (session: Session | null) => void;
+  userSession: Session | null;
+  setUserSession: (session: Session | null) => void;
   loading: boolean;
   setLoading: (loading: boolean) => void;
   shouldRefetchHome: boolean;
@@ -41,8 +37,8 @@ const GlobalContext = createContext<GlobalContextType>({
   setIsLogged: () => {},
   loggedUser: undefined,
   setLoggedUser: () => {},
-  session: null,
-  setSession: () => {},
+  userSession: null,
+  setUserSession: () => {},
   loading: true,
   setLoading: () => {},
   shouldRefetchHome: false,
@@ -62,7 +58,7 @@ export const useGlobalContext = () => useContext(GlobalContext);
 const GlobalProvider = ({ children }: PropsWithChildren) => {
   const [isLogged, setIsLogged] = useState(false);
   const [loggedUser, setLoggedUser] = useState<User | undefined>();
-  const [session, setSession] = useState<Session | null>(null);
+  const [userSession, setUserSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [shouldRefetchHome, setShouldRefetchHome] = useState(false);
   const [shouldRefetchProfile, setShouldRefetchProfile] = useState(false);
@@ -73,19 +69,12 @@ const GlobalProvider = ({ children }: PropsWithChildren) => {
   const [hasCameraPermission, setHasCameraPermission] = useState(false);
 
   useEffect(() => {
-    const fetchUserSession = async () => {
-      const data = await getUserSession();
-      setSession(data.session);
-      setLoggedUser(data.session?.user);
-    };
-
     try {
-      fetchUserSession();
       supabase.auth.onAuthStateChange((event, session) => {
-        setSession(session);
+        setUserSession(session);
         setLoggedUser(session?.user);
+        setIsLogged(!!session);
       });
-      setIsLogged(true);
     } catch (error) {
       console.log("Error fetching user session", error);
     } finally {
@@ -94,16 +83,18 @@ const GlobalProvider = ({ children }: PropsWithChildren) => {
   }, []);
 
   useEffect(() => {
-    if (session) {
+    if (userSession) {
       const fetchFavorites = async () => {
-        const data = await getMyFavoriteListingIds({ userId: session.user.id });
+        const data = await getMyFavoriteListingIds({
+          userId: userSession.user.id,
+        });
         if (data) {
           setMyFavoriteIds(data);
         }
       };
 
       const fetchUserData = async () => {
-        const data = await getUserData({ userId: session.user.id });
+        const data = await getUserData({ userId: userSession.user.id });
         if (data) {
           setUserData(data);
         }
@@ -112,7 +103,7 @@ const GlobalProvider = ({ children }: PropsWithChildren) => {
       fetchFavorites();
       fetchUserData();
     }
-  }, [session]);
+  }, [userSession]);
 
   return (
     <GlobalContext.Provider
@@ -121,8 +112,8 @@ const GlobalProvider = ({ children }: PropsWithChildren) => {
         setIsLogged,
         loggedUser,
         setLoggedUser,
-        session,
-        setSession,
+        userSession,
+        setUserSession,
         loading,
         setLoading,
         shouldRefetchHome,
