@@ -28,6 +28,10 @@ const SignIn = () => {
     try {
       const { error, data } = await signIn(form.email, form.password);
 
+      if (error) {
+        throw new Error("Error signing in", error);
+      }
+
       setLoggedUser(data.session?.user);
       setIsLogged(true);
 
@@ -42,7 +46,7 @@ const SignIn = () => {
   return (
     <SafeAreaView className="bg-primary h-full">
       <ScrollView>
-        <View className="w-full justify-center min-h-[85vh] px-4 my-6">
+        <View className="w-full justify-center min-h-[45vh] px-4 my-6">
           <Image
             source={images.logo}
             resizeMode="contain"

@@ -56,13 +56,8 @@ const SignUp = () => {
     <SafeAreaView className="bg-primary h-full">
       <KeyboardAwareScrollView className="px-4 my-6" extraHeight={120}>
         <ScrollView>
-          <View className="w-full justify-center min-h-[85vh] px-4 my-6">
-            <Image
-              source={images.logo}
-              resizeMode="contain"
-              className="w-[115px] h-[35px]"
-            />
-            <Text className="text-2xl text-white text-semibold mt-10 font-psemibold">
+          <View className="w-full justify-center min-h-[45vh] px-4">
+            <Text className="text-2xl text-white text-semibold font-psemibold">
               Създай профил
             </Text>
 
