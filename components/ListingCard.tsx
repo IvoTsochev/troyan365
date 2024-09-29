@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { Alert, Image, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { icons } from "../constants";
+import { icons, images } from "../constants";
 import { HeartIcon } from "react-native-heroicons/outline";
 // Context
 import { useGlobalContext } from "../context/GlobalProvider";
@@ -170,16 +170,24 @@ const ListingCard = ({
         </View>
 
         <View className="w-full h-60 rounded-xl mt-3 relative justify-center items-center border-2 border-white/20">
-          <Image
-            source={{
-              uri: getImageUrl({
-                bucketName: "listings_bucket",
-                imagePath: thumbnail_url,
-              }),
-            }}
-            className="w-full h-full rounded-xl"
-            resizeMode="cover"
-          />
+          {thumbnail_url ? (
+            <Image
+              source={{
+                uri: getImageUrl({
+                  bucketName: "listings_bucket",
+                  imagePath: thumbnail_url,
+                }),
+              }}
+              className="w-full h-full rounded-xl"
+              resizeMode="cover"
+            />
+          ) : (
+            <Image
+              source={images.noImage}
+              className="w-full h-full rounded-lg"
+              resizeMode="contain"
+            />
+          )}
         </View>
       </TouchableOpacity>
       <ActionSheet

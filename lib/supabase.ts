@@ -263,7 +263,7 @@ const compressImage = async ({
   }
 };
 
-// Function to convert the URI to a Blob
+// CONVERT URI TO Blob
 const uriToBlob = async ({ uri }: any) => {
   const response = await fetch(uri);
   const blob = await response.blob();
@@ -308,6 +308,7 @@ export const uploadFile = async ({
   return data;
 };
 
+// DELETE AVATAR
 export const deleteAvatar = async ({ userId }: { userId: string }) => {
   if (!userId) {
     throw new Error("Missing userId");
@@ -497,7 +498,6 @@ export const updateListing = async ({
   };
 
   if (form.thumbnail_url.uri) {
-    console.log("inside form.thumbnail_url.uri");
     const listFilesInThumbnailFolder = await listFiles({
       bucket: GLOBALS.BUCKETS.LISTINGS,
       folderPath: `listings/${userId}/${listingId}`,
@@ -722,4 +722,41 @@ export const searchListings = async ({
   }
 
   return data;
+};
+
+// REMOVE THUMBNAIL
+export const removeThumbnail = async ({
+  userId,
+  listingId,
+}: {
+  userId: string;
+  listingId: any;
+}) => {
+  if (!userId || !listingId) {
+    throw new Error("Missing userId or listingId");
+  }
+
+  const listFilesInThumbnailFolder = await listFiles({
+    bucket: GLOBALS.BUCKETS.LISTINGS,
+    folderPath: `listings/${userId}/${listingId}`,
+  });
+  const path = `listings/${userId}/${listingId}/${listFilesInThumbnailFolder[0]?.name}`;
+
+  const { data, error } = await supabase.storage
+    .from(GLOBALS.BUCKETS.LISTINGS)
+    .remove([path]);
+
+  if (error) {
+    throw new Error("Error deleting thumbnail from storage");
+  }
+
+  const { data: updateData, error: updateError } = await supabase
+    .from(GLOBALS.TABLES.LISTINGS)
+    .update({ thumbnail_url: null })
+    .eq("listing_id", listingId)
+    .eq("creator_id", userId);
+
+  if (updateError) {
+    throw new Error("Error removing thumbnail from listing");
+  }
 };

@@ -5,17 +5,17 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { getSpecificListing, updateListing } from "../../lib/supabase";
 import { useLocalSearchParams } from "expo-router";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import { getImageUrl } from "../../lib/supabase";
+import { getImageUrl, removeThumbnail } from "../../lib/supabase";
 import ActionSheet from "react-native-actionsheet";
 import * as ImagePicker from "expo-image-picker";
 import { Camera } from "expo-camera";
 import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
+import { useGlobalContext } from "../../context/GlobalProvider";
 // Components
 import FormField from "../../components/FormField";
 import { icons } from "../../constants";
 import CustomButton from "../../components/CustomButton";
-import { useGlobalContext } from "../../context/GlobalProvider";
 
 const Edit = () => {
   const {
@@ -93,17 +93,42 @@ const Edit = () => {
     }
   };
 
+  const removeMainThumbnail = async () => {
+    if (listing.thumbnail_url) {
+      try {
+        await removeThumbnail({
+          listingId,
+          userId: loggedUser?.id || "",
+        });
+        setListing({ ...listing, thumbnail_url: "" });
+
+        Alert.alert("Готово", "Главната снимка е премахната");
+
+        setShouldRefetchProfile(true);
+
+        router.push("/profile");
+      } catch (error) {
+        console.error(error);
+      }
+    } else {
+      Alert.alert("Грешка", "Няма избрана главна снимка");
+    }
+  };
+
   const handleActionPress = async (index: number) => {
     if (index === 1) {
+      // images from gallery
       openPicker();
     }
 
     if (index === 2) {
+      // take photo
       takePhoto();
     }
 
     if (index === 3) {
-      // setListing({ ...listing, thumbnail_url: "" });
+      // remove main thumbnail image
+      removeMainThumbnail();
     }
   };
 
