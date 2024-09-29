@@ -2,6 +2,11 @@ import React, { useEffect } from "react";
 import { Stack, SplashScreen } from "expo-router";
 import { useFonts } from "expo-font";
 import GlobalProvider from "../context/GlobalProvider";
+import * as Sentry from "@sentry/react-native";
+
+Sentry.init({
+  dsn: "https://f0be64d9941410ac6ca242259be80eba@o4508035960930304.ingest.de.sentry.io/4508035965124688",
+});
 
 SplashScreen.preventAutoHideAsync();
 
