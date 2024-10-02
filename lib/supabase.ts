@@ -169,7 +169,16 @@ export const loadMoreListings = async ({
 }) => {
   const { data, error } = await supabase
     .from(GLOBALS.TABLES.LISTINGS)
-    .select("*")
+    .select(
+      `
+      *,
+      users (
+        email,
+        username,
+        avatar_url
+      )
+    `
+    )
     .order("created_at", { ascending: false })
     .range(currentPage * 5, (currentPage + 1) * 5 - 1);
 

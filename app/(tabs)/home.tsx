@@ -59,7 +59,7 @@ const Home = () => {
     const data = await loadMoreListings({
       currentPage,
     });
-    if (data) {
+    if (data.length > 0) {
       setListingsData((prevData) => [...prevData, ...data]);
       setCurrentPage(currentPage + 1);
     }
@@ -67,6 +67,7 @@ const Home = () => {
 
   const onRefresh = async () => {
     await fetchData();
+    setCurrentPage(1);
   };
 
   return (
@@ -79,12 +80,14 @@ const Home = () => {
           <View className="my-6 px-4 space-y-6">
             <View className="justify-between items-start flex-row mb-6">
               <View>
-                <Text className="font-pmedium text-sm text-gray-100">
+                <Text className="font-pmedium text-sm text-gray-100 py-3">
                   Добре дошъл
                 </Text>
-                <Text className="text-2xl font-psemibold text-white">
-                  {loggedUser?.user_metadata.username}
-                </Text>
+                {loggedUser?.user_metadata.username && (
+                  <Text className="text-2xl font-psemibold text-white">
+                    {loggedUser?.user_metadata.username}
+                  </Text>
+                )}
               </View>
               <View className="mt-1.5 ">
                 {userData?.avatar_url ? (
