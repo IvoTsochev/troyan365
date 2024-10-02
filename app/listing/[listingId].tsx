@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { Text, View, Image, ActivityIndicator } from "react-native";
+import {
+  Text,
+  View,
+  Image,
+  ActivityIndicator,
+  Linking,
+  Alert,
+  TouchableOpacity,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 // Utils
 import { getSpecificListing } from "../../lib/supabase";
@@ -25,6 +33,12 @@ const SingleListing = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handlePhonePress = (phoneNumber) => {
+    Linking.openURL(`tel:${phoneNumber}`).catch((err) =>
+      Alert.alert("Error", "Unable to make a call")
+    );
   };
 
   useEffect(() => {
@@ -67,10 +81,13 @@ const SingleListing = () => {
             ) : (
               <Text className="text-white mt-3">Няма описание</Text>
             )}
-
-            <Text className="text-white mt-3 font-pregular text-lg">
-              Телефон: {listing?.phone_number1}
-            </Text>
+            <TouchableOpacity
+              onPress={() => handlePhonePress(listing?.phone_number1)}
+            >
+              <Text className="text-white mt-3 font-pregular text-lg">
+                Телефон: {listing?.phone_number1}
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
       )}
