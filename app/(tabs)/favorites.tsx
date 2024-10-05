@@ -9,18 +9,28 @@ import { useGlobalContext } from "../../context/GlobalProvider";
 import { getSpecificListing } from "../../lib/supabase";
 
 const Favorites = () => {
-  const { myFavoriteIds, loggedUser } = useGlobalContext();
+  const { myFavoriteIds, loggedUser, myFavoriteIdsFromStorage } =
+    useGlobalContext();
   const [refreshing, setRefreshing] = useState(false);
   const [myFavorites, setMyFavorites] = useState();
 
   const fetchFavorites = async () => {
-    if (!loggedUser?.id) return;
-    const data = await Promise.all(
-      myFavoriteIds.map(async (id) => {
-        const listing = await getSpecificListing(id.listing_id);
-        return listing;
-      })
-    );
+    let data;
+    if (loggedUser?.id) {
+      data = await Promise.all(
+        myFavoriteIds.map(async (id) => {
+          const listing = await getSpecificListing(id.listing_id);
+          return listing;
+        })
+      );
+    } else {
+      data = await Promise.all(
+        myFavoriteIdsFromStorage.map(async (id) => {
+          const listing = await getSpecificListing(id.listing_id);
+          return listing;
+        })
+      );
+    }
 
     setMyFavorites(data);
   };
@@ -33,7 +43,7 @@ const Favorites = () => {
 
   useEffect(() => {
     fetchFavorites();
-  }, [myFavoriteIds]);
+  }, [myFavoriteIds, myFavoriteIdsFromStorage]);
 
   return (
     <SafeAreaView className="bg-primary h-full">

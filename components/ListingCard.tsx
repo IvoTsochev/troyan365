@@ -16,6 +16,9 @@ import {
 } from "../lib/supabase";
 import ActionSheet from "react-native-actionsheet";
 import { router } from "expo-router";
+import { logAsyncStorage } from "../utils/logAsyncStorage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { updateFavoritesInStorage } from "../utils/asyncstorage/updateFavorites";
 // TS
 import { ListingType } from "../types/types";
 
@@ -38,6 +41,8 @@ const ListingCard = ({
     setShouldRefetchProfile,
     myFavoriteIds,
     setMyFavoriteIds,
+    myFavoriteIdsFromStorage,
+    setMyFavoriteIdsFromStorage,
     userData,
   } = useGlobalContext();
   const [isListingFavorited, setIsListingFavorited] = useState(false);
@@ -81,26 +86,48 @@ const ListingCard = ({
 
   const toggleFavoritesHandler = async () => {
     try {
-      if (!loggedUser?.id) return;
-      const isFavorited = myFavoriteIds.some(
-        (item) => item.listing_id === listing_id
-      );
-
-      if (isFavorited) {
-        setMyFavoriteIds(
-          myFavoriteIds.filter((item) => item.listing_id !== listing_id)
+      if (loggedUser?.id) {
+        const isFavorited = myFavoriteIds.some(
+          (item) => item.listing_id === listing_id
         );
-        await removeFavorite({
-          userId: loggedUser.id,
-          listingId: listing_id,
-        });
+
+        const updatedFavorites = await updateFavoritesInStorage(
+          listing_id,
+          isFavorited
+        );
+        setMyFavoriteIdsFromStorage(updatedFavorites);
+
+        if (isFavorited) {
+          setMyFavoriteIds(
+            myFavoriteIds.filter((item) => item.listing_id !== listing_id)
+          );
+          await removeFavorite({
+            userId: loggedUser.id,
+            listingId: listing_id,
+          });
+        } else {
+          setMyFavoriteIds([...myFavoriteIds, { listing_id }]);
+          await addFavorite({
+            userId: loggedUser.id,
+            listingId: listing_id,
+          });
+        }
       } else {
-        setMyFavoriteIds([...myFavoriteIds, { listing_id }]);
-        await addFavorite({
-          userId: loggedUser.id,
-          listingId: listing_id,
-        });
+        const currentStorage = await AsyncStorage.getItem("myFavoritesStorage");
+        const isListingInFavoritesStorage = currentStorage
+          ? JSON.parse(currentStorage).some(
+              (item: { listing_id: string }) => item.listing_id === listing_id
+            )
+          : false;
+
+        const updatedFavorites = await updateFavoritesInStorage(
+          listing_id,
+          isListingInFavoritesStorage
+        );
+        setMyFavoriteIdsFromStorage(updatedFavorites);
       }
+
+      logAsyncStorage();
     } catch (error) {
       console.error("Error toggling favorite:", error);
     }
@@ -108,9 +135,13 @@ const ListingCard = ({
 
   useEffect(() => {
     setIsListingFavorited(
-      myFavoriteIds.some((item) => item.listing_id === listing_id)
+      loggedUser?.id
+        ? myFavoriteIds.some((item) => item.listing_id === listing_id)
+        : myFavoriteIdsFromStorage.some(
+            (item) => item.listing_id === listing_id
+          )
     );
-  }, [myFavoriteIds]);
+  }, [myFavoriteIds, myFavoriteIdsFromStorage]);
 
   return (
     <SafeAreaView className="bg-primary">
