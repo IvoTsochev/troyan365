@@ -37,6 +37,7 @@ const Profile = () => {
     shouldRefetchProfile,
     userData,
     setUserData,
+    setMyFavoriteIds,
   } = useGlobalContext();
   const [refreshing, setRefreshing] = useState(false);
 
@@ -75,6 +76,7 @@ const Profile = () => {
     setUserSession(null);
     setIsLogged(false);
     setUserData(undefined);
+    setMyFavoriteIds([]);
 
     router.replace("/home");
   };

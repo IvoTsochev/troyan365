@@ -7,10 +7,15 @@ import FormField from "../../components/FormField";
 import CustomButton from "../../components/CustomButton";
 import { Link, router } from "expo-router";
 import { useGlobalContext } from "../../context/GlobalProvider";
-import { signIn } from "../../lib/supabase";
+import {
+  addFavorite,
+  getMyFavoriteListingIds,
+  signIn,
+} from "../../lib/supabase";
+import { getFavoriteIdsFromAsyncStorage } from "../../utils/asyncstorage/getFavoriteIdsFromAsyncStorage";
 
 const SignIn = () => {
-  const { setLoggedUser, setIsLogged } = useGlobalContext();
+  const { setLoggedUser, setIsLogged, setMyFavoriteIds } = useGlobalContext();
   const [form, setForm] = useState({
     email: "",
     password: "",
@@ -31,6 +36,33 @@ const SignIn = () => {
       if (error) {
         throw new Error("Error signing in", error);
       }
+
+      const userId = data.session?.user.id;
+
+      const tableFavorites = await getMyFavoriteListingIds({
+        userId,
+      });
+
+      const favoritesFromStorage = await getFavoriteIdsFromAsyncStorage();
+
+      const missingFavorites = favoritesFromStorage.filter(
+        (favorite: any) =>
+          !tableFavorites.some(
+            (tableFavorite) => tableFavorite.listing_id === favorite.listing_id
+          )
+      );
+
+      await Promise.all(
+        missingFavorites.map((favorite: any) =>
+          addFavorite({ userId, listingId: favorite.listing_id })
+        )
+      );
+
+      const updatedFavorites = await getMyFavoriteListingIds({
+        userId,
+      });
+
+      setMyFavoriteIds(updatedFavorites);
 
       setLoggedUser(data.session?.user);
       setIsLogged(true);

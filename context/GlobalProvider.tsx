@@ -10,6 +10,7 @@ import { getMyFavoriteListingIds, getUserData } from "../lib/supabase";
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "../lib/supabase-config";
 import { UserType } from "../types/types";
+import { getFavoriteIdsFromAsyncStorage } from "../utils/asyncstorage/getFavoriteIdsFromAsyncStorage";
 
 type GlobalContextType = {
   isLogged: boolean;
@@ -26,6 +27,8 @@ type GlobalContextType = {
   setShouldRefetchProfile: (shouldRefetchProfile: boolean) => void;
   myFavoriteIds: { listing_id: string }[];
   setMyFavoriteIds: (favorites: { listing_id: string }[]) => void;
+  myFavoriteIdsFromStorage: { listing_id: string }[];
+  setMyFavoriteIdsFromStorage: (favorites: { listing_id: string }[]) => void;
   userData: UserType | undefined;
   setUserData: (user: any) => void;
   hasCameraPermission: boolean;
@@ -47,6 +50,8 @@ const GlobalContext = createContext<GlobalContextType>({
   setShouldRefetchProfile: () => {},
   myFavoriteIds: [],
   setMyFavoriteIds: () => {},
+  myFavoriteIdsFromStorage: [],
+  setMyFavoriteIdsFromStorage: () => {},
   userData: undefined,
   setUserData: () => {},
   hasCameraPermission: false,
@@ -65,6 +70,9 @@ const GlobalProvider = ({ children }: PropsWithChildren) => {
   const [myFavoriteIds, setMyFavoriteIds] = useState<{ listing_id: string }[]>(
     []
   );
+  const [myFavoriteIdsFromStorage, setMyFavoriteIdsFromStorage] = useState<
+    { listing_id: string }[]
+  >([]);
   const [userData, setUserData] = useState<UserType | undefined>();
   const [hasCameraPermission, setHasCameraPermission] = useState(false);
 
@@ -84,15 +92,6 @@ const GlobalProvider = ({ children }: PropsWithChildren) => {
 
   useEffect(() => {
     if (userSession) {
-      const fetchFavorites = async () => {
-        const data = await getMyFavoriteListingIds({
-          userId: userSession.user.id,
-        });
-        if (data) {
-          setMyFavoriteIds(data);
-        }
-      };
-
       const fetchUserData = async () => {
         const data = await getUserData({ userId: userSession.user.id });
         if (data) {
@@ -100,10 +99,20 @@ const GlobalProvider = ({ children }: PropsWithChildren) => {
         }
       };
 
-      fetchFavorites();
       fetchUserData();
     }
   }, [userSession]);
+
+  useEffect(() => {
+    const fetchFavoritesFromStorage = async () => {
+      const data = await getFavoriteIdsFromAsyncStorage();
+      if (data) {
+        setMyFavoriteIdsFromStorage(data);
+      }
+    };
+
+    fetchFavoritesFromStorage();
+  }, []);
 
   return (
     <GlobalContext.Provider
@@ -122,6 +131,8 @@ const GlobalProvider = ({ children }: PropsWithChildren) => {
         setShouldRefetchProfile,
         myFavoriteIds,
         setMyFavoriteIds,
+        myFavoriteIdsFromStorage,
+        setMyFavoriteIdsFromStorage,
         userData,
         setUserData,
         hasCameraPermission,
