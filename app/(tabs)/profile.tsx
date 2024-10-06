@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import {
   View,
   FlatList,
@@ -21,12 +21,12 @@ import CustomButton from "../../components/CustomButton";
 // Utils
 import { useGlobalContext } from "../../context/GlobalProvider";
 import { icons } from "../../constants";
-import { signOut, getUserListings, deleteAvatar } from "../../lib/supabase";
-import { ListingType, UserType } from "../../types/types";
+import { signOut, deleteAvatar } from "../../lib/supabase";
+import { UserType } from "../../types/types";
 import { uploadAvatar } from "../../lib/supabase";
+import useFetchUserListings from "../../hooks/useFetchUserListings";
 
 const Profile = () => {
-  const [myListings, setMyListings] = useState<ListingType[]>([]);
   const {
     loggedUser,
     setLoggedUser,
@@ -39,36 +39,20 @@ const Profile = () => {
     setUserData,
     setMyFavoriteIds,
   } = useGlobalContext();
-  const [refreshing, setRefreshing] = useState(false);
-
   const actionSheetRef = useRef<ActionSheet | null>(null);
 
-  const fetchData = async () => {
-    setRefreshing(true);
-    try {
-      const data = await getUserListings(loggedUser?.id);
-      if (data) {
-        setMyListings(data);
-      }
-    } catch (error: any) {
-      Alert.alert("Error", error.message);
-    } finally {
-      setRefreshing(false);
-    }
-  };
-
-  useEffect(() => {
-    if (loggedUser) {
-      fetchData();
-    }
-  }, []);
+  const {
+    data: myListingsData,
+    isFetching,
+    refetch,
+  } = useFetchUserListings({ userId: loggedUser?.id });
 
   useEffect(() => {
     if (shouldRefetchProfile) {
-      fetchData();
+      refetch();
       setShouldRefetchProfile(false);
     }
-  }, [shouldRefetchProfile]);
+  }, [shouldRefetchProfile, refetch, setShouldRefetchProfile]);
 
   const logout = async () => {
     await signOut();
@@ -155,14 +139,10 @@ const Profile = () => {
     }
   };
 
-  const onRefresh = async () => {
-    await fetchData();
-  };
-
   return (
     <SafeAreaView className="bg-primary h-full">
       <FlatList
-        data={myListings}
+        data={myListingsData}
         keyExtractor={(item) => item?.listing_id.toString()}
         renderItem={({ item }) => <ListingCard listing={item} />}
         ListHeaderComponent={() => (
@@ -203,7 +183,7 @@ const Profile = () => {
 
             <View className="mt-5 flex-row">
               <InfoBox
-                title={myListings?.length.toString() || "0"}
+                title={myListingsData?.length.toString() || "0"}
                 subtitle="Постове"
                 containerStyle="mr-10"
                 titleStyles="text-xl"
@@ -224,8 +204,8 @@ const Profile = () => {
         )}
         refreshControl={
           <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
+            refreshing={isFetching}
+            onRefresh={refetch}
             tintColor={"#FF9C01"}
           />
         }

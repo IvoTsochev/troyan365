@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React from "react";
 // Components
 import { Text, View, FlatList, RefreshControl } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -6,49 +6,30 @@ import EmptyState from "../../components/EmptyState";
 import ListingCard from "../../components/ListingCard";
 // Utils
 import { useGlobalContext } from "../../context/GlobalProvider";
-import { getSpecificListing } from "../../lib/supabase";
+import useFetchFavorites from "../../hooks/useFetchFavorites";
 
 const Favorites = () => {
   const { myFavoriteIds, loggedUser, myFavoriteIdsFromStorage } =
     useGlobalContext();
-  const [refreshing, setRefreshing] = useState(false);
-  const [myFavorites, setMyFavorites] = useState();
 
-  const fetchFavorites = async () => {
-    let data;
-    if (loggedUser?.id) {
-      data = await Promise.all(
-        myFavoriteIds.map(async (id) => {
-          const listing = await getSpecificListing(id.listing_id);
-          return listing;
-        })
-      );
-    } else {
-      data = await Promise.all(
-        myFavoriteIdsFromStorage.map(async (id) => {
-          const listing = await getSpecificListing(id.listing_id);
-          return listing;
-        })
-      );
-    }
+  const currentFavoriteIds = loggedUser?.id
+    ? myFavoriteIds
+    : myFavoriteIdsFromStorage;
 
-    setMyFavorites(data);
-  };
-
-  const onRefresh = useCallback(async () => {
-    setRefreshing(true);
-    await fetchFavorites();
-    setRefreshing(false);
-  }, []);
-
-  useEffect(() => {
-    fetchFavorites();
-  }, [myFavoriteIds, myFavoriteIdsFromStorage]);
+  const {
+    data: myFavoritesData,
+    isFetching,
+    refetch,
+  } = useFetchFavorites({
+    myFavoriteIds: currentFavoriteIds,
+    supabaseIds: myFavoriteIds,
+    storageIds: myFavoriteIdsFromStorage,
+  });
 
   return (
     <SafeAreaView className="bg-primary h-full">
       <FlatList
-        data={myFavorites}
+        data={myFavoritesData}
         keyExtractor={(item) => item?.listing_id}
         renderItem={({ item }) => <ListingCard listing={item} />}
         initialNumToRender={10}
@@ -67,8 +48,8 @@ const Favorites = () => {
         )}
         refreshControl={
           <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
+            refreshing={isFetching}
+            onRefresh={refetch}
             tintColor={"#FF9C01"}
           />
         }

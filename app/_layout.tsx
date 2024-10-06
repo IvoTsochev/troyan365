@@ -3,12 +3,15 @@ import { Stack, SplashScreen } from "expo-router";
 import { useFonts } from "expo-font";
 import GlobalProvider from "../context/GlobalProvider";
 import * as Sentry from "@sentry/react-native";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 Sentry.init({
   dsn: "https://f0be64d9941410ac6ca242259be80eba@o4508035960930304.ingest.de.sentry.io/4508035965124688",
 });
 
 SplashScreen.preventAutoHideAsync();
+
+const queryClient = new QueryClient();
 
 const RootLayout = () => {
   const [fontsLoaded, error] = useFonts({
@@ -32,58 +35,60 @@ const RootLayout = () => {
 
   return (
     <GlobalProvider>
-      <Stack>
-        <Stack.Screen
-          name="index"
-          options={{
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name="(auth)"
-          options={{
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name="(tabs)"
-          options={{
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name="search/[query]"
-          options={{
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name="listing/[listingId]"
-          options={{
-            headerShown: true,
-            headerTintColor: "#FFA001",
-            headerBackTitle: "Назад",
-            headerStyle: {
-              backgroundColor: "#161622",
-            },
-            title: "Обява",
-            animation: "default",
-          }}
-        />
-        <Stack.Screen
-          name="edit/[listingId]"
-          options={{
-            headerShown: true,
-            headerTintColor: "#FFA001",
-            headerBackTitle: "Назад",
-            headerStyle: {
-              backgroundColor: "#161622",
-            },
-            title: "Редактиране",
-            animation: "default",
-          }}
-        />
-      </Stack>
+      <QueryClientProvider client={queryClient}>
+        <Stack>
+          <Stack.Screen
+            name="index"
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="(auth)"
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="(tabs)"
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="search/[query]"
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="listing/[listingId]"
+            options={{
+              headerShown: true,
+              headerTintColor: "#FFA001",
+              headerBackTitle: "Назад",
+              headerStyle: {
+                backgroundColor: "#161622",
+              },
+              title: "Обява",
+              animation: "default",
+            }}
+          />
+          <Stack.Screen
+            name="edit/[listingId]"
+            options={{
+              headerShown: true,
+              headerTintColor: "#FFA001",
+              headerBackTitle: "Назад",
+              headerStyle: {
+                backgroundColor: "#161622",
+              },
+              title: "Редактиране",
+              animation: "default",
+            }}
+          />
+        </Stack>
+      </QueryClientProvider>
     </GlobalProvider>
   );
 };
