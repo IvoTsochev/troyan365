@@ -85,12 +85,12 @@ const ListingCard = ({
   };
 
   const toggleFavoritesHandler = async () => {
+    const isFavorited = myFavoriteIds.some(
+      (item) => item.listing_id === listing_id
+    );
+
     try {
       if (loggedUser?.id) {
-        const isFavorited = myFavoriteIds.some(
-          (item) => item.listing_id === listing_id
-        );
-
         const updatedFavorites = await updateFavoritesInStorage(
           listing_id,
           isFavorited
