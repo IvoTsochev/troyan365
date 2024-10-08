@@ -1,8 +1,9 @@
 {
   "expo": {
-    "name": "Troyan365",
-    "scheme": "troyan365",
-    "slug": "troyan365",
+    "name": "Троян Бизнеси",
+    "slug": "troyan-biznesi",
+    "description": "Троян Бизнеси където всеки бизнес може да си публикува дейноста и да може бързо и лесно да бъде намерен",
+    "scheme": "troianbiznesi",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -14,14 +15,15 @@
     },
     "ios": {
       "supportsTablet": true,
-      "package": "com.headless.troyan365"
+      "package": "com.headless.troianbiznesi"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.headless.troyan365"
+      "package": "com.headless.troianbiznesi",
+      "versionCode": 1
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -37,6 +39,12 @@
           "organization": "headless-team"
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "1be6d6e8-17dc-4d48-ab12-6000a3227b8c"
+      }
+    },
+    "owner": "ivotsochev"
   }
 }
