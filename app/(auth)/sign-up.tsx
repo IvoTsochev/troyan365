@@ -57,7 +57,17 @@ const SignUp = () => {
       <KeyboardAwareScrollView className="px-4 my-6" extraHeight={120}>
         <ScrollView>
           <View className="w-full justify-center min-h-[45vh] px-4">
-            <Text className="text-2xl text-white text-semibold font-psemibold">
+            <View className="flex flex-row justify-start">
+              <Image
+                source={images.logoSmall}
+                resizeMode="contain"
+                className="w-[50px] h-[35px]"
+              />
+              <Text className="text-2xl text-white font-pextrabold">
+                Троян Бизнеси
+              </Text>
+            </View>
+            <Text className="text-2xl text-white mt-10 text-semibold font-psemibold">
               Създай профил
             </Text>
 
