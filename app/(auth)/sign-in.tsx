@@ -79,11 +79,16 @@ const SignIn = () => {
     <SafeAreaView className="bg-primary h-full">
       <ScrollView>
         <View className="w-full justify-center min-h-[45vh] px-4 my-6">
-          <Image
-            source={images.logo}
-            resizeMode="contain"
-            className="w-[115px] h-[35px]"
-          />
+          <View className="flex flex-row justify-start">
+            <Image
+              source={images.logoSmall}
+              resizeMode="contain"
+              className="w-[50px] h-[35px]"
+            />
+            <Text className="text-2xl text-white font-pextrabold">
+              Троян Бизнеси
+            </Text>
+          </View>
           <Text className="text-2xl text-white text-semibold mt-10 font-psemibold">
             Влез в профила си
           </Text>
