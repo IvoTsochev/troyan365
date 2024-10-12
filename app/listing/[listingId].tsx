@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Text,
   View,
@@ -13,14 +13,19 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { getSpecificListing } from "../../lib/supabase";
 import { useLocalSearchParams } from "expo-router";
 import { getImageUrl } from "../../lib/supabase";
+import ActionSheet from "react-native-actionsheet";
+import * as Haptics from "expo-haptics";
 // TS
 import { ListingType } from "../../types/types";
+import { images } from "../../constants";
 
 const SingleListing = () => {
   const [listing, setListing] = useState<ListingType | null>(null);
   const [loading, setLoading] = useState(true);
 
   const { listingId } = useLocalSearchParams();
+
+  const actionSheetRef = useRef<ActionSheet | null>(null);
 
   const fetchData = async () => {
     try {
@@ -35,10 +40,37 @@ const SingleListing = () => {
     }
   };
 
-  const handlePhonePress = (phoneNumber) => {
+  const handlePhonePress = (phoneNumber: string) => {
     Linking.openURL(`tel:${phoneNumber}`).catch((err) =>
       Alert.alert("Error", "Unable to make a call")
     );
+  };
+
+  const handleMessagePress = (phoneNumber: string) => {
+    Linking.openURL(`sms:${phoneNumber}`).catch((err) =>
+      Alert.alert("Error", "Unable to send a message")
+    );
+  };
+
+  const showActionSheet = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    if (actionSheetRef.current !== null) {
+      actionSheetRef.current.show();
+    }
+  };
+
+  const handleActionPress = async (index: number) => {
+    if (index === 1) {
+      if (listing?.phone_number1) {
+        handlePhonePress(listing?.phone_number1);
+      }
+    }
+
+    if (index === 2) {
+      if (listing?.phone_number1) {
+        handleMessagePress(listing?.phone_number1);
+      }
+    }
   };
 
   useEffect(() => {
@@ -57,40 +89,59 @@ const SingleListing = () => {
             {listing?.title}
           </Text>
           <View className="h-60 border-2 border-white/20 rounded-xl">
-            <Image
-              source={{
-                uri: getImageUrl({
-                  bucketName: "listings_bucket",
-                  imagePath: listing?.thumbnail_url,
-                }),
-              }}
-              className="w-full h-full rounded-xl"
-              resizeMode="contain"
-            />
+            {listing?.thumbnail_url ? (
+              <Image
+                source={{
+                  uri: getImageUrl({
+                    bucketName: "listings_bucket",
+                    imagePath: listing?.thumbnail_url,
+                  }),
+                }}
+                className="w-full h-full rounded-xl"
+                resizeMode="contain"
+              />
+            ) : (
+              <Image
+                source={images.noImage}
+                className="w-full h-full rounded-xl"
+                resizeMode="contain"
+              />
+            )}
           </View>
           <View>
             {listing?.description ? (
-              <View>
-                <Text className="text-white mt-3 font-psemibold text-2xl">
+              <View className="border-2 border-white/20 rounded-xl mt-3 p-3">
+                <Text className="text-white font-psemibold text-2xl">
                   Описание:
                 </Text>
-                <Text className="text-white mt-3 font-pregular text-lg">
-                  {listing.description}
+                <Text className="text-white font-pregular text-lg">
+                  {listing?.description}
                 </Text>
               </View>
             ) : (
-              <Text className="text-white mt-3">Няма описание</Text>
+              <View className="border-2 border-white/20 rounded-xl mt-3 p-3">
+                <Text className="text-white">Няма описание</Text>
+              </View>
             )}
             <TouchableOpacity
-              onPress={() => handlePhonePress(listing?.phone_number1)}
+              className="border-2 border-white/20 rounded-xl mt-3 p-3"
+              onPress={() => {
+                showActionSheet();
+              }}
             >
-              <Text className="text-white mt-3 font-pregular text-lg">
+              <Text className="text-white font-pregular text-lg">
                 Телефон: {listing?.phone_number1}
               </Text>
             </TouchableOpacity>
           </View>
         </View>
       )}
+      <ActionSheet
+        ref={actionSheetRef}
+        options={["Cancel", "Обади се", "Изпрати съобщение"]}
+        cancelButtonIndex={0}
+        onPress={handleActionPress}
+      />
     </SafeAreaView>
   );
 };
