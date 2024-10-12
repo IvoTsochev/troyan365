@@ -25,7 +25,7 @@ import { ListingType } from "../../types/types";
 const Home = () => {
   const [listingsData, setListingsData] = useState<ListingType[]>([]);
   const [refreshing, setRefreshing] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(0);
 
   const { loggedUser, shouldRefetchHome, setShouldRefetchHome, userData } =
     useGlobalContext();
@@ -60,14 +60,27 @@ const Home = () => {
       currentPage,
     });
     if (data.length > 0) {
-      setListingsData((prevData) => [...prevData, ...data]);
+      setListingsData((prevData) => {
+        const uniqueListings = [
+          ...prevData,
+          ...data.filter(
+            (newListing) =>
+              !prevData.some(
+                (existingListing) =>
+                  existingListing.listing_id === newListing.listing_id
+              )
+          ),
+        ];
+        return uniqueListings;
+      });
       setCurrentPage(currentPage + 1);
     }
   };
 
   const onRefresh = async () => {
+    setListingsData([]);
+    setCurrentPage(0);
     await fetchData();
-    setCurrentPage(1);
   };
 
   return (

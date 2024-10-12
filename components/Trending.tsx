@@ -3,6 +3,8 @@ import { FlatList, Image, TouchableOpacity } from "react-native";
 // Utils
 import * as Animatable from "react-native-animatable";
 import { getImageUrl } from "../lib/supabase";
+import { images } from "../constants";
+import { ListingType } from "../types/types";
 
 const zoomIn = {
   0: {
@@ -27,6 +29,10 @@ type PropTypes = {
   item: any;
 };
 
+type PostType = {
+  posts: ListingType[];
+};
+
 const TrendingItem = ({ activeItem, item }: PropTypes) => {
   return (
     <Animatable.View
@@ -39,24 +45,28 @@ const TrendingItem = ({ activeItem, item }: PropTypes) => {
         activeOpacity={0.7}
       >
         <Image
-          source={{
-            uri: getImageUrl({
-              bucketName: "listings_bucket",
-              imagePath: item.thumbnail_url,
-            }),
-          }}
+          source={
+            item.thumbnail_url
+              ? {
+                  uri: getImageUrl({
+                    bucketName: "listings_bucket",
+                    imagePath: item.thumbnail_url,
+                  }),
+                }
+              : images.noImage
+          }
           className="w-52 h-72 bg-white/10"
-          resizeMode="cover"
+          resizeMode={item.thumbnail_url ? "cover" : "contain"}
         />
       </TouchableOpacity>
     </Animatable.View>
   );
 };
 
-const Trending = ({ posts }) => {
+const Trending = ({ posts }: PostType) => {
   const [activeItem, setActiveItem] = useState(posts[1]);
 
-  const viewableItemsChanged = ({ viewableItems }) => {
+  const viewableItemsChanged = ({ viewableItems }: any) => {
     if (viewableItems.length > 0) {
       setActiveItem(viewableItems[0].key);
     }

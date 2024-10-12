@@ -45,6 +45,7 @@
     "@tanstack/eslint-plugin-query": "^5.59.1",
     "@types/react": "~18.2.45",
     "@types/react-native-actionsheet": "^2.4.7",
+    "react-native-dotenv": "^3.4.11",
     "tailwindcss": "^3.3.2",
     "typescript": "^5.1.3"
   },
