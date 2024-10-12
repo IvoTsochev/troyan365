@@ -7,6 +7,7 @@ import {
   Linking,
   Alert,
   TouchableOpacity,
+  Share,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 // Utils
@@ -15,9 +16,11 @@ import { useLocalSearchParams } from "expo-router";
 import { getImageUrl } from "../../lib/supabase";
 import ActionSheet from "react-native-actionsheet";
 import * as Haptics from "expo-haptics";
+import { useNavigation } from "@react-navigation/native";
 // TS
 import { ListingType } from "../../types/types";
 import { images } from "../../constants";
+import { EllipsisVerticalIcon } from "react-native-heroicons/outline";
 
 const SingleListing = () => {
   const [listing, setListing] = useState<ListingType | null>(null);
@@ -26,6 +29,19 @@ const SingleListing = () => {
   const { listingId } = useLocalSearchParams();
 
   const actionSheetRef = useRef<ActionSheet | null>(null);
+  const optionActionSheetRef = useRef<ActionSheet | null>(null);
+
+  const navigation = useNavigation();
+
+  useEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <TouchableOpacity onPress={showOptionActionSheet}>
+          <EllipsisVerticalIcon className="w-5 h-5" />
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation]);
 
   const fetchData = async () => {
     try {
@@ -52,10 +68,35 @@ const SingleListing = () => {
     );
   };
 
+  const handleShareListing = async () => {
+    try {
+      const result = await Share.share({
+        message: `Check out this listing: ${listing?.title} - ${listing?.phone_number1}`,
+      });
+      if (result.action === Share.sharedAction) {
+        if (result.activityType) {
+          console.log("Shared with activity type: ", result.activityType);
+        } else {
+          console.log("Shared successfully");
+        }
+      } else if (result.action === Share.dismissedAction) {
+        console.log("Share dismissed");
+      }
+    } catch (error) {
+      console.error("Error sharing the listing: ", error);
+    }
+  };
+
   const showActionSheet = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     if (actionSheetRef.current !== null) {
       actionSheetRef.current.show();
+    }
+  };
+
+  const showOptionActionSheet = () => {
+    if (optionActionSheetRef.current) {
+      optionActionSheetRef.current.show();
     }
   };
 
@@ -70,6 +111,16 @@ const SingleListing = () => {
       if (listing?.phone_number1) {
         handleMessagePress(listing?.phone_number1);
       }
+    }
+  };
+
+  const handleOptionActionPress = async (index: number) => {
+    if (index === 1) {
+      Alert.alert("Докладване", "Все още не е възможно");
+    }
+
+    if (index === 2) {
+      handleShareListing();
     }
   };
 
@@ -138,9 +189,15 @@ const SingleListing = () => {
       )}
       <ActionSheet
         ref={actionSheetRef}
-        options={["Cancel", "Обади се", "Изпрати съобщение"]}
+        options={["Откажи", "Обади се", "Изпрати съобщение"]}
         cancelButtonIndex={0}
         onPress={handleActionPress}
+      />
+      <ActionSheet
+        ref={optionActionSheetRef}
+        options={["Откажи", "Докладвай публикацията", "Сподели публикацията"]}
+        cancelButtonIndex={0}
+        onPress={handleOptionActionPress}
       />
     </SafeAreaView>
   );
