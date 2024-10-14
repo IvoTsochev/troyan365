@@ -1,7 +1,15 @@
 import React, { useRef, useState, useEffect } from "react";
-import { Alert, Image, Text, TouchableOpacity, View } from "react-native";
+import {
+  Alert,
+  Image,
+  Text,
+  TouchableOpacity,
+  View,
+  ActivityIndicator,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { icons, images } from "../constants";
+// Components
 import { HeartIcon } from "react-native-heroicons/outline";
 // Context
 import { useGlobalContext } from "../context/GlobalProvider";
@@ -19,6 +27,7 @@ import { router } from "expo-router";
 import { logAsyncStorage } from "../utils/logAsyncStorage";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { updateFavoritesInStorage } from "../utils/asyncstorage/updateFavorites";
+import { toggleListingActivation } from "../lib/supabase";
 // TS
 import { ListingType } from "../types/types";
 
@@ -33,6 +42,7 @@ const ListingCard = ({
     creator_id,
     users: listingCreator,
     listing_id,
+    is_active,
   },
 }: PropTypes) => {
   const {
@@ -46,6 +56,8 @@ const ListingCard = ({
     userData,
   } = useGlobalContext();
   const [isListingFavorited, setIsListingFavorited] = useState(false);
+  const [isListingActive, setIsListingActive] = useState(is_active);
+  const [optionLoading, setOptionLoading] = useState(false);
 
   const actionSheetRef = useRef<ActionSheet | null>(null);
 
@@ -78,7 +90,30 @@ const ListingCard = ({
         console.error(error);
       }
     } else if (index === 2) {
-      Alert.alert("Деактивирана", "Публикацията е деактивирана");
+      try {
+        setOptionLoading(true);
+        setIsListingActive(!isListingActive);
+        await toggleListingActivation({
+          listingId: listing_id,
+          isActive: !isListingActive,
+        });
+        setShouldRefetchHome(true);
+        Alert.alert(
+          !isListingActive ? "Активирана" : "Деактивирана",
+          !isListingActive
+            ? "Публикацията е активирана"
+            : "Публикацията е деактивирана"
+        );
+      } catch (error) {
+        Alert.alert(
+          "Грешка",
+          !isListingActive
+            ? "Грешка при активиране на публикацията"
+            : "Грешка при деактивиране на публикацията"
+        );
+      } finally {
+        setOptionLoading(false);
+      }
     } else if (index === 3) {
       router.push(`/edit/${listing_id}`);
     }
@@ -146,7 +181,9 @@ const ListingCard = ({
   return (
     <SafeAreaView className="bg-primary">
       <TouchableOpacity
-        className="flex-col items-center px-4"
+        className={`flex-col items-center px-4 ${
+          !isListingActive && "opacity-30"
+        }`}
         onPress={() => router.push(`/listing/${listing_id}`)}
       >
         <View className="flex-row gap-3 items-start">
@@ -191,11 +228,15 @@ const ListingCard = ({
 
           {loggedUser?.id === creator_id && (
             <TouchableOpacity className="p-4" onPress={showActionSheet}>
-              <Image
-                source={icons.menu}
-                className="w-5 h-5"
-                resizeMode="contain"
-              />
+              {optionLoading ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <Image
+                  source={icons.menu}
+                  className="w-5 h-5"
+                  resizeMode="contain"
+                />
+              )}
             </TouchableOpacity>
           )}
         </View>
@@ -224,9 +265,9 @@ const ListingCard = ({
       <ActionSheet
         ref={actionSheetRef}
         options={[
-          "Cancel",
+          "Откажи",
           "Изтрии публикация",
-          "Деактивирай публикация",
+          isListingActive ? "Деактивирай публикация" : "Активирай публикация",
           "Редактирай публикация",
         ]}
         cancelButtonIndex={0}

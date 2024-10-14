@@ -539,6 +539,30 @@ export const updateListing = async ({
   }
 };
 
+// UPDATE LISTING ACTIVE STATUS
+export const toggleListingActivation = async ({
+  listingId,
+  isActive,
+}: {
+  listingId: string;
+  isActive: boolean;
+}) => {
+  if (!listingId) {
+    throw new Error("Missing listingId or isActive");
+  }
+
+  const { data, error } = await supabase
+    .from(GLOBALS.TABLES.LISTINGS)
+    .update({ is_active: isActive })
+    .eq("listing_id", listingId);
+
+  if (error) {
+    throw new Error("Error updating listing status");
+  }
+
+  return data;
+};
+
 // GET LATEST LISTINGS
 export const getLatestListings = async () => {
   const { data, error } = await supabase
@@ -553,6 +577,7 @@ export const getLatestListings = async () => {
       )
     `
     )
+    .eq("is_active", true)
     .order("created_at", { ascending: false })
     .limit(5);
 

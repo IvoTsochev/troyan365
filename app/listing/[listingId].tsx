@@ -136,6 +136,9 @@ const SingleListing = () => {
         </View>
       ) : (
         <View className="w-full px-3">
+          <Text className="text-red-500 text-center font-psemibold text-sm">
+            {!listing?.is_active && "Обявата е деактивирана"}
+          </Text>
           <Text className="text-white mb-3 text-center font-psemibold text-2xl">
             {listing?.title}
           </Text>

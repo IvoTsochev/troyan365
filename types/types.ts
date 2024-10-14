@@ -15,6 +15,7 @@ export type ListingType = {
   title: string;
   users: UserType;
   description?: string;
+  is_active: boolean;
 };
 
 export type FavoriteType = {
