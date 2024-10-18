@@ -9,6 +9,7 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "@alessiocancian/react-native-actionsheet": "^3.2.0",
     "@react-native-async-storage/async-storage": "1.23.1",
     "@rneui/themed": "^4.0.0-rc.8",
     "@sentry/react-native": "^5.33.1",
@@ -28,7 +29,6 @@
     "nativewind": "^2.0.11",
     "react": "18.2.0",
     "react-native": "0.74.5",
-    "react-native-actionsheet": "^2.4.2",
     "react-native-animatable": "^1.4.0",
     "react-native-appwrite": "^0.5.0",
     "react-native-elements": "^3.4.3",

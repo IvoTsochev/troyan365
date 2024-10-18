@@ -22,7 +22,7 @@ import {
   getImageUrl,
   removeFavorite,
 } from "../lib/supabase";
-import ActionSheet from "react-native-actionsheet";
+import ActionSheet from "@alessiocancian/react-native-actionsheet";
 import { router } from "expo-router";
 import { logAsyncStorage } from "../utils/logAsyncStorage";
 import AsyncStorage from "@react-native-async-storage/async-storage";

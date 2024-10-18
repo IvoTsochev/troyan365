@@ -45,7 +45,7 @@ const SignIn = () => {
 
       const favoritesFromStorage = await getFavoriteIdsFromAsyncStorage();
 
-      const missingFavorites = favoritesFromStorage.filter(
+      const missingFavorites = favoritesFromStorage?.filter(
         (favorite: any) =>
           !tableFavorites.some(
             (tableFavorite) => tableFavorite.listing_id === favorite.listing_id
