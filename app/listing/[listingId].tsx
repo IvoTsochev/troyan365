@@ -14,7 +14,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { getSpecificListing } from "../../lib/supabase";
 import { useLocalSearchParams } from "expo-router";
 import { getImageUrl } from "../../lib/supabase";
-import ActionSheet from "react-native-actionsheet";
+import ActionSheet from "@alessiocancian/react-native-actionsheet";
 import * as Haptics from "expo-haptics";
 import { useNavigation } from "@react-navigation/native";
 // TS

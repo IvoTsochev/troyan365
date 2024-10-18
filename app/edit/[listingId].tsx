@@ -6,7 +6,7 @@ import { getSpecificListing, updateListing } from "../../lib/supabase";
 import { useLocalSearchParams } from "expo-router";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { getImageUrl, removeThumbnail } from "../../lib/supabase";
-import ActionSheet from "react-native-actionsheet";
+import ActionSheet from "@alessiocancian/react-native-actionsheet";
 import * as ImagePicker from "expo-image-picker";
 import { Camera } from "expo-camera";
 import * as Haptics from "expo-haptics";

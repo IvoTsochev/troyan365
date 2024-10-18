@@ -7,7 +7,7 @@ import * as ImagePicker from "expo-image-picker";
 import { useGlobalContext } from "../../context/GlobalProvider";
 import { createListing } from "../../lib/supabase";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import ActionSheet from "react-native-actionsheet";
+import ActionSheet from "@alessiocancian/react-native-actionsheet";
 import * as Haptics from "expo-haptics";
 import { Camera } from "expo-camera";
 // Components
