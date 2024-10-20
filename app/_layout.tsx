@@ -74,6 +74,7 @@ const RootLayout = () => {
               },
               title: "Обява",
               animation: "default",
+              headerTitleAlign: "center",
               headerRight: () => (
                 <View>
                   <EllipsisVerticalIcon className="w-5 h-5" />
