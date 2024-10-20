@@ -20,7 +20,7 @@ import { useNavigation } from "@react-navigation/native";
 // TS
 import { ListingType } from "../../types/types";
 import { images } from "../../constants";
-import { EllipsisVerticalIcon } from "react-native-heroicons/outline";
+import Icon from "react-native-vector-icons/MaterialIcons";
 
 const SingleListing = () => {
   const [listing, setListing] = useState<ListingType | null>(null);
@@ -37,7 +37,7 @@ const SingleListing = () => {
     navigation.setOptions({
       headerRight: () => (
         <TouchableOpacity onPress={showOptionActionSheet}>
-          <EllipsisVerticalIcon className="w-5 h-5" />
+          <Icon name="more-vert" size={24} color="#FF9C01" />
         </TouchableOpacity>
       ),
     });
