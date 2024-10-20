@@ -291,7 +291,7 @@ export const uploadFile = async ({
 
   const compressedImageUri = await compressImage({
     imageUri: file.uri,
-    compressionLevel: "medium",
+    compressionLevel: "high",
   });
   const fileBlob = await uriToBlob({ uri: compressedImageUri });
   const arrayBuffer = await new Response(fileBlob).arrayBuffer();
