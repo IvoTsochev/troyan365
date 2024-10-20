@@ -10,6 +10,7 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view
 import ActionSheet from "@alessiocancian/react-native-actionsheet";
 import * as Haptics from "expo-haptics";
 import { Camera } from "expo-camera";
+import packageJson from "../../package.json";
 // Components
 import FormField from "../../components/FormField";
 import { icons } from "../../constants";
@@ -150,7 +151,7 @@ const Create = () => {
 
   return (
     <SafeAreaView className="bg-primary h-full">
-      <KeyboardAwareScrollView className="px-4 my-6" extraHeight={120}>
+      <KeyboardAwareScrollView className="px-4" extraHeight={120}>
         <Text className="text-2xl text-white font-psemibold">Качи обява</Text>
 
         <FormField
@@ -224,6 +225,9 @@ const Create = () => {
           containerStyles="mt-7"
           isLoading={uploading}
         />
+        <View className="flex justify-center items-center my-3">
+          <Text className="text-gray-400">Version: {packageJson.version}</Text>
+        </View>
       </KeyboardAwareScrollView>
       <ActionSheet
         ref={actionSheetRef}
