@@ -1,11 +1,13 @@
-import React, { useEffect } from "react";
-import { Stack, SplashScreen } from "expo-router";
+import React, { useEffect, useState } from "react";
+import { Stack, SplashScreen, router } from "expo-router";
 import { useFonts } from "expo-font";
 import GlobalProvider from "../context/GlobalProvider";
 import * as Sentry from "@sentry/react-native";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { View } from "react-native";
 import { EllipsisVerticalIcon } from "react-native-heroicons/outline";
+import * as Linking from "expo-linking";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 Sentry.init({
   dsn: "https://f0be64d9941410ac6ca242259be80eba@o4508035960930304.ingest.de.sentry.io/4508035965124688",
@@ -15,7 +17,12 @@ SplashScreen.preventAutoHideAsync();
 
 const queryClient = new QueryClient();
 
+const prefix = Linking.createURL("/");
+console.log("prefix", prefix);
+
 const RootLayout = () => {
+  const [deepLinkHandled, setDeepLinkHandled] = useState(false);
+
   const [fontsLoaded, error] = useFonts({
     "Poppins-Black": require("../assets/fonts/Poppins-Black.ttf"),
     "Poppins-Bold": require("../assets/fonts/Poppins-Bold.ttf"),
@@ -32,6 +39,42 @@ const RootLayout = () => {
     if (error) throw error;
     if (fontsLoaded) SplashScreen.hideAsync();
   }, [fontsLoaded, error]);
+
+  useEffect(() => {
+    const handleDeepLink = (event: any) => {
+      let url = event.url;
+      const data = Linking.parse(url);
+
+      if (data.path === "reset-password" && !deepLinkHandled) {
+        console.log("into if");
+        console.log("what is data link", data);
+
+        setTimeout(() => {
+          router.push({
+            pathname: "/reset-password",
+            params: {
+              token: data.queryParams?.token,
+              email: data.queryParams?.email,
+            },
+          });
+          setDeepLinkHandled(true);
+
+          // url = null;
+          // data.path = null;
+        }, 100);
+      }
+    };
+
+    const subscription = Linking.addEventListener("url", handleDeepLink);
+
+    Linking.getInitialURL().then((url) => {
+      if (url && !deepLinkHandled) {
+        handleDeepLink({ url });
+      }
+    });
+
+    return () => subscription.remove();
+  }, [deepLinkHandled]);
 
   if (!fontsLoaded && !error) return null;
 

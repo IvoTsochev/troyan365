@@ -10,12 +10,13 @@ import { useGlobalContext } from "../../context/GlobalProvider";
 import {
   addFavorite,
   getMyFavoriteListingIds,
+  listingExists,
   signIn,
 } from "../../lib/supabase";
 import { getFavoriteIdsFromAsyncStorage } from "../../utils/asyncstorage/getFavoriteIdsFromAsyncStorage";
 
 const SignIn = () => {
-  const { setLoggedUser, setIsLogged, setMyFavoriteIds } = useGlobalContext();
+  const { setIsLogged, setMyFavoriteIds } = useGlobalContext();
   const [form, setForm] = useState({
     email: "",
     password: "",
@@ -32,31 +33,42 @@ const SignIn = () => {
 
     try {
       const { error, data } = await signIn(form.email, form.password);
-
       if (error) {
         throw new Error("Error signing in", error);
       }
+      const userId = data.session?.user?.id;
 
-      const userId = data.session?.user.id;
-
-      const tableFavorites = await getMyFavoriteListingIds({
-        userId,
-      });
+      const tableFavorites = await getMyFavoriteListingIds({ userId });
 
       const favoritesFromStorage = await getFavoriteIdsFromAsyncStorage();
 
-      const missingFavorites = favoritesFromStorage?.filter(
+      let existingFavorites = [];
+      if (favoritesFromStorage.length > 0) {
+        existingFavorites = await Promise.all(
+          favoritesFromStorage?.map(async (favorite: any) => {
+            const exists = await listingExists(favorite.listing_id);
+            return exists ? favorite : null;
+          })
+        );
+      }
+
+      const validFavoritesFromStorage = existingFavorites.filter(Boolean);
+
+      const missingFavorites = validFavoritesFromStorage?.filter(
         (favorite: any) =>
           !tableFavorites.some(
             (tableFavorite) => tableFavorite.listing_id === favorite.listing_id
           )
       );
 
-      await Promise.all(
-        missingFavorites.map((favorite: any) =>
-          addFavorite({ userId, listingId: favorite.listing_id })
-        )
-      );
+      if (missingFavorites.length > 0) {
+        await Promise.all(
+          missingFavorites?.map(
+            async (favorite) =>
+              await addFavorite({ userId, listingId: favorite.listing_id })
+          )
+        );
+      }
 
       const updatedFavorites = await getMyFavoriteListingIds({
         userId,
@@ -64,7 +76,6 @@ const SignIn = () => {
 
       setMyFavoriteIds(updatedFavorites);
 
-      setLoggedUser(data.session?.user);
       setIsLogged(true);
 
       router.replace("/home");

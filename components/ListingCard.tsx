@@ -46,7 +46,6 @@ const ListingCard = ({
   },
 }: PropTypes) => {
   const {
-    loggedUser,
     setShouldRefetchHome,
     setShouldRefetchProfile,
     myFavoriteIds,
@@ -71,13 +70,13 @@ const ListingCard = ({
   const handleActionPress = async (index: number) => {
     if (index === 1) {
       try {
-        if (!loggedUser?.id) return;
+        if (!userData?.user_id) return;
         await deleteListing({
           listingId: listing_id,
         });
 
         await deleteListingFolder({
-          loggedUserId: loggedUser.id,
+          loggedUserId: userData?.user_id,
           listingId: listing_id,
         });
 
@@ -125,7 +124,7 @@ const ListingCard = ({
     );
 
     try {
-      if (loggedUser?.id) {
+      if (userData?.user_id) {
         const updatedFavorites = await updateFavoritesInStorage(
           listing_id,
           isFavorited
@@ -137,13 +136,13 @@ const ListingCard = ({
             myFavoriteIds.filter((item) => item.listing_id !== listing_id)
           );
           await removeFavorite({
-            userId: loggedUser.id,
+            userId: userData?.user_id,
             listingId: listing_id,
           });
         } else {
           setMyFavoriteIds([...myFavoriteIds, { listing_id }]);
           await addFavorite({
-            userId: loggedUser.id,
+            userId: userData?.user_id,
             listingId: listing_id,
           });
         }
@@ -170,7 +169,7 @@ const ListingCard = ({
 
   useEffect(() => {
     setIsListingFavorited(
-      loggedUser?.id
+      userData?.user_id
         ? myFavoriteIds.some((item) => item.listing_id === listing_id)
         : myFavoriteIdsFromStorage.some(
             (item) => item.listing_id === listing_id
@@ -226,7 +225,7 @@ const ListingCard = ({
             />
           </TouchableOpacity>
 
-          {loggedUser?.id === creator_id && (
+          {userData?.user_id === creator_id && (
             <TouchableOpacity className="p-4" onPress={showActionSheet}>
               {optionLoading ? (
                 <ActivityIndicator size="small" color="#fff" />

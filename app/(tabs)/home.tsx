@@ -27,7 +27,7 @@ const Home = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
 
-  const { loggedUser, shouldRefetchHome, setShouldRefetchHome, userData } =
+  const { shouldRefetchHome, setShouldRefetchHome, userData } =
     useGlobalContext();
 
   const fetchData = async () => {
@@ -96,9 +96,9 @@ const Home = () => {
                 <Text className="font-pmedium text-sm text-gray-100 py-3">
                   Добре дошъл
                 </Text>
-                {loggedUser?.user_metadata.username && (
+                {userData?.username && (
                   <Text className="text-2xl font-psemibold text-white">
-                    {loggedUser?.user_metadata.username}
+                    {userData?.username}
                   </Text>
                 )}
               </View>

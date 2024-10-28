@@ -20,7 +20,7 @@ type ImageType = ImagePicker.ImagePickerAsset;
 
 const Create = () => {
   const {
-    loggedUser,
+    userData,
     userSession,
     setShouldRefetchHome,
     setShouldRefetchProfile,
@@ -110,7 +110,7 @@ const Create = () => {
     try {
       await createListing({
         form,
-        userId: loggedUser?.id,
+        userId: userData?.user_id,
       });
       Alert.alert("Готово", "Публикацията скоро ще бъде публикувана");
 

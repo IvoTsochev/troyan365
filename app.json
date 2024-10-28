@@ -3,7 +3,7 @@
     "name": "Троян Бизнеси",
     "slug": "troyan-biznesi",
     "description": "Троян Бизнеси където всеки бизнес може да си публикува дейноста и да може бързо и лесно да бъде намерен",
-    "scheme": "troianbiznesi",
+    "scheme": "team.headless.troyanbiznesi",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",

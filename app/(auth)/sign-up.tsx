@@ -14,7 +14,7 @@ import { useGlobalContext } from "../../context/GlobalProvider";
 import { signUp } from "../../lib/supabase";
 
 const SignUp = () => {
-  const { setLoggedUser, setIsLogged } = useGlobalContext();
+  const { setIsLogged } = useGlobalContext();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [form, setForm] = useState({
     username: "",
@@ -41,7 +41,6 @@ const SignUp = () => {
         throw error;
       }
 
-      setLoggedUser(user);
       setIsLogged(true);
 
       router.replace("/home");

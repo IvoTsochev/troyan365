@@ -3,6 +3,7 @@ export type UserType = {
   email: string;
   username: string;
   avatar_url: string;
+  user_id: string;
 };
 
 export type ListingType = {

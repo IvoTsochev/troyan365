@@ -14,7 +14,20 @@ const ExpoSecureStoreAdapter = {
     return SecureStore.getItemAsync(key);
   },
   setItem: (key: string, value: string) => {
-    SecureStore.setItemAsync(key, value);
+    console.log("what is value", value);
+
+    const sessionData = JSON.parse(value);
+    console.log("what is session data", sessionData);
+
+    const minimalSessionData = {
+      access_token: sessionData.access_token,
+      refresh_token: sessionData.refresh_token,
+      expires_at: sessionData.expires_at,
+      userId: sessionData.user.id,
+    };
+    const minimalValue = JSON.stringify(minimalSessionData);
+
+    return SecureStore.setItemAsync(key, minimalValue);
   },
   removeItem: (key: string) => {
     SecureStore.deleteItemAsync(key);
@@ -22,12 +35,12 @@ const ExpoSecureStoreAdapter = {
 };
 
 // CLOUD
-// const supabaseUrl = CLOUD_SUPABASE_URL;
-// const supabaseAnonKey = CLOUD_ANON_KEY;
+const supabaseUrl = CLOUD_SUPABASE_URL;
+const supabaseAnonKey = CLOUD_ANON_KEY;
 
 // SELF-HOSTED
-const supabaseUrl = LINODE_SUPABASE_URL;
-const supabaseAnonKey = LINODE_ANON_KEY;
+// const supabaseUrl = LINODE_SUPABASE_URL;
+// const supabaseAnonKey = LINODE_ANON_KEY;
 
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
   auth: {

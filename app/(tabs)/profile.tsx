@@ -28,8 +28,6 @@ import useFetchUserListings from "../../hooks/useFetchUserListings";
 
 const Profile = () => {
   const {
-    loggedUser,
-    setLoggedUser,
     setIsLogged,
     userSession,
     setUserSession,
@@ -45,7 +43,7 @@ const Profile = () => {
     data: myListingsData,
     isFetching,
     refetch,
-  } = useFetchUserListings({ userId: loggedUser?.id });
+  } = useFetchUserListings({ userId: userData ? userData.user_id : "" });
 
   useEffect(() => {
     if (shouldRefetchProfile) {
@@ -56,10 +54,9 @@ const Profile = () => {
 
   const logout = async () => {
     await signOut();
-    setLoggedUser(undefined);
     setUserSession(null);
     setIsLogged(false);
-    setUserData(undefined);
+    setUserData(null);
     setMyFavoriteIds([]);
 
     router.replace("/home");
@@ -76,6 +73,12 @@ const Profile = () => {
           handlePress={() => router.push("/sign-in")}
           containerStyles="w-1/2"
         />
+        <TouchableOpacity
+          onPress={() => router.push("/forgot-password")}
+          className="mt-5"
+        >
+          <Text className="text-white text-xl">Забравена парола?</Text>
+        </TouchableOpacity>
       </SafeAreaView>
     );
   }
@@ -98,12 +101,12 @@ const Profile = () => {
       const pickedFile = result.assets[0];
 
       const { updateData } = await uploadAvatar({
-        userId: `${loggedUser?.id}`,
+        userId: `${userData?.user_id}`,
         file: pickedFile,
       });
 
       if (updateData && updateData.avatar_url) {
-        setUserData((prev: UserType | undefined) => ({
+        setUserData((prev: UserType | null) => ({
           ...prev,
           avatar_url: `${updateData.avatar_url}?time=${new Date().getTime()}`,
         }));
@@ -125,7 +128,7 @@ const Profile = () => {
       }
       setUserData((prev: any) => ({ ...prev, avatar_url: "" }));
       await deleteAvatar({
-        userId: `${loggedUser?.id}`,
+        userId: `${userData?.user_id}`,
       });
 
       Alert.alert("Успешно", "Профилната снимка е изтрита успешно");
@@ -171,15 +174,12 @@ const Profile = () => {
               </View>
             </TouchableOpacity>
             <InfoBox
-              title={loggedUser?.user_metadata.username}
+              title={userData?.username || ""}
               containerStyle="mt-5"
               titleStyles="text-lg font-bold"
             />
 
-            <InfoBox
-              title={loggedUser?.user_metadata.email}
-              titleStyles="text-sm"
-            />
+            <InfoBox title={userData?.email || ""} titleStyles="text-sm" />
 
             <View className="mt-5 flex-row">
               <InfoBox
