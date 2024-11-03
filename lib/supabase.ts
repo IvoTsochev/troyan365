@@ -6,14 +6,14 @@ import * as ImageManipulator from "expo-image-manipulator";
 type ImageType = ImagePicker.ImagePickerAsset;
 
 // CLOUD URL's
-// export const supabaseBaseUrl = "https://qeecuxesbmiidpvycjqq.supabase.co";
-// export const supabaseBucketPath = "storage/v1/object/public";
-// export const supabaseBucketUrl = `${supabaseBaseUrl}/${supabaseBucketPath}`;
+export const supabaseBaseUrl = "https://qeecuxesbmiidpvycjqq.supabase.co";
+export const supabaseBucketPath = "storage/v1/object/public";
+export const supabaseBucketUrl = `${supabaseBaseUrl}/${supabaseBucketPath}`;
 
 // SELF HOSTED URL's
-export const supabaseBaseUrl = "http://139.162.163.228:8000";
-export const supabaseBucketPath = "storage/v1/object/public/";
-export const supabaseBucketUrl = `${supabaseBaseUrl}/${supabaseBucketPath}/`;
+// export const supabaseBaseUrl = "http://139.162.163.228:8000";
+// export const supabaseBucketPath = "storage/v1/object/public/";
+// export const supabaseBucketUrl = `${supabaseBaseUrl}/${supabaseBucketPath}/`;
 
 export const GLOBALS = {
   TABLES: {
@@ -36,6 +36,23 @@ export const getImageUrl = ({
   imagePath: string;
 }) => {
   return `${supabaseBucketUrl}/${bucketName}/${imagePath}`;
+};
+
+// UPDATE USER AUTH DATA
+export const updateUserAuthData = async ({
+  newPassword,
+}: {
+  newPassword: string;
+}) => {
+  const { data, error } = await supabase.auth.updateUser({
+    password: newPassword,
+  });
+
+  if (error) {
+    throw new Error("Error updating user password");
+  }
+
+  return data;
 };
 
 // UPDATE USER DATA IN USERS TABLE
@@ -130,7 +147,7 @@ export const signOut = async () => {
 // GET USER DATA FROM USERS TABLE
 export const getUserData = async ({ userId }: { userId: string }) => {
   if (!userId) {
-    throw new Error("User not found");
+    throw new Error("getUserData => User not found");
   }
 
   const { data, error } = await supabase
@@ -190,7 +207,7 @@ export const loadMoreListings = async ({
 // GET USER LISTINGS
 export const getUserListings = async (userId: string | undefined) => {
   if (!userId) {
-    throw new Error("User not found");
+    throw new Error("getUserListings => User not found");
   }
 
   const { data, error } = await supabase
@@ -427,7 +444,7 @@ export const createListing = async ({
   const listingId = uuid.v4();
 
   if (!userId) {
-    throw new Error("User not found");
+    throw new Error("createListing => User not found");
   }
 
   // Upload the thumbnail image if present
@@ -490,7 +507,7 @@ export const updateListing = async ({
   userId: string;
 }) => {
   if (!userId || !listingId) {
-    throw new Error("User not found");
+    throw new Error("updateListing => User not found");
   }
 
   let newThumbnailUrl = null;
@@ -613,7 +630,7 @@ export const deleteListingFolder = async ({
 
   // If files exist, delete them
   if (files?.length > 0) {
-    const filePaths = files.map((file) => `${path}/${file.name}`);
+    const filePaths = files?.map((file) => `${path}/${file.name}`);
     // Delete all files in the folder
     const { error: deleteError } = await supabase.storage
       .from(GLOBALS.BUCKETS.LISTINGS)
@@ -642,6 +659,22 @@ export const deleteListing = async ({ listingId }: { listingId: string }) => {
   return data;
 };
 
+export const listingExists = async ({ listingId }: { listingId: string }) => {
+  console.log("listingId", listingId);
+
+  const { data, error } = await supabase
+    .from(GLOBALS.TABLES.LISTINGS)
+    .select("listing_id")
+    .eq("listing_id", listingId)
+    .single();
+
+  if (error || !data) {
+    return false;
+  }
+
+  return !!data;
+};
+
 // ADD TO FAVORITES
 export const addFavorite = async ({
   userId,
@@ -655,6 +688,7 @@ export const addFavorite = async ({
     .insert([{ user_id: userId, listing_id: listingId }]);
 
   if (error) {
+    console.error("Unable to add to favorites. Please try again:", error);
     throw new Error("Unable to add to favorites. Please try again.");
   }
 
@@ -788,5 +822,14 @@ export const removeThumbnail = async ({
 
   if (updateError) {
     throw new Error("Error removing thumbnail from listing");
+  }
+};
+
+// PASSOWRD RESET
+export const resetPassword = async (email: string) => {
+  const { data, error } = await supabase.auth.resetPasswordForEmail(email);
+
+  if (error) {
+    throw new Error("Error sending password reset email");
   }
 };

@@ -14,7 +14,7 @@ import { useGlobalContext } from "../../context/GlobalProvider";
 import { signUp } from "../../lib/supabase";
 
 const SignUp = () => {
-  const { setLoggedUser, setIsLogged } = useGlobalContext();
+  const { setIsLogged } = useGlobalContext();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [form, setForm] = useState({
     username: "",
@@ -24,7 +24,7 @@ const SignUp = () => {
 
   const signUpHandler = async () => {
     if (!form.username || !form.email || !form.password) {
-      Alert.alert("Error", "Please fill in all fields");
+      Alert.alert("Грешка", "Моля попълнете всички полета.");
       return;
     }
 
@@ -41,7 +41,6 @@ const SignUp = () => {
         throw error;
       }
 
-      setLoggedUser(user);
       setIsLogged(true);
 
       router.replace("/home");

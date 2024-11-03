@@ -4,15 +4,13 @@ export const getFavoriteIdsFromAsyncStorage = async () => {
   try {
     const keys = await AsyncStorage.getAllKeys();
     const items = await AsyncStorage.multiGet(keys);
-
-    const myFavoritesStorage = items.find(
-      ([key]) => key === "myFavoritesStorage"
-    );
+    const myFavoritesStorage =
+      items.find(([key]) => key === "myFavoritesStorage") || [];
 
     if (myFavoritesStorage?.length && myFavoritesStorage[1]) {
       return JSON.parse(myFavoritesStorage[1]);
     } else {
-      return null;
+      return [];
     }
   } catch (error) {
     console.error("Error logging AsyncStorage:", error);

@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { getUserListings } from "../lib/supabase";
 
-const useFetchUserListings = ({ userId }: { userId: string | undefined }) => {
+const useFetchUserListings = ({ userId }: { userId: string }) => {
   return useQuery({
     queryKey: ["userListings", userId],
     queryFn: async () => {

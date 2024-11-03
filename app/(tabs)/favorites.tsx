@@ -9,10 +9,10 @@ import { useGlobalContext } from "../../context/GlobalProvider";
 import useFetchFavorites from "../../hooks/useFetchFavorites";
 
 const Favorites = () => {
-  const { myFavoriteIds, loggedUser, myFavoriteIdsFromStorage } =
+  const { myFavoriteIds, myFavoriteIdsFromStorage, userData } =
     useGlobalContext();
 
-  const currentFavoriteIds = loggedUser?.id
+  const currentFavoriteIds = userData?.user_id
     ? myFavoriteIds
     : myFavoriteIdsFromStorage;
 

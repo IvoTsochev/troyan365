@@ -22,7 +22,6 @@ export const updateFavoritesInStorage = async (
       JSON.stringify(updatedFavorites)
     );
 
-    console.log("Favorites updated in storage successfully");
     return updatedFavorites;
   } catch (error) {
     console.error("Error updating favorites in storage:", error);

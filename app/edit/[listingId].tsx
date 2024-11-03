@@ -21,7 +21,7 @@ const Edit = () => {
   const {
     hasCameraPermission,
     setHasCameraPermission,
-    loggedUser,
+    userData,
     setShouldRefetchProfile,
   } = useGlobalContext();
 
@@ -98,7 +98,7 @@ const Edit = () => {
       try {
         await removeThumbnail({
           listingId,
-          userId: loggedUser?.id || "",
+          userId: userData?.user_id || "",
         });
         setListing({ ...listing, thumbnail_url: "" });
 
@@ -150,7 +150,7 @@ const Edit = () => {
       await updateListing({
         form: listing,
         listingId,
-        userId: loggedUser?.id || "",
+        userId: userData?.user_id || "",
       });
       Alert.alert("Готово", "Публикацията е успешно редактирана");
 

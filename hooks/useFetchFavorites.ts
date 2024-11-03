@@ -19,7 +19,7 @@ const useFetchFavorites = ({
     queryFn: async () => {
       let data;
       data = await Promise.all(
-        myFavoriteIds.map(async (id) => {
+        myFavoriteIds?.map(async (id) => {
           const listing = await getSpecificListing(id.listing_id);
           return listing;
         })
