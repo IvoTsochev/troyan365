@@ -26,7 +26,7 @@ const SignIn = () => {
 
   const signInHandler = async () => {
     if (!form.email || !form.password) {
-      Alert.alert("Error", "Please fill in all fields");
+      Alert.alert("Грешка", "Моля попълнете всички полета.");
     }
 
     setIsSubmitting(true);
@@ -34,7 +34,7 @@ const SignIn = () => {
     try {
       const { error, data } = await signIn(form.email, form.password);
       if (error) {
-        throw new Error("Error signing in", error);
+        throw new Error("Грешка при влизането, опитайтее отново", error);
       }
       const userId = data.session?.user?.id;
 

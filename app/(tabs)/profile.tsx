@@ -73,12 +73,12 @@ const Profile = () => {
           handlePress={() => router.push("/sign-in")}
           containerStyles="w-1/2"
         />
-        <TouchableOpacity
+        {/* <TouchableOpacity
           onPress={() => router.push("/forgot-password")}
           className="mt-5"
         >
           <Text className="text-white text-xl">Забравена парола?</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </SafeAreaView>
     );
   }
@@ -101,7 +101,7 @@ const Profile = () => {
       const pickedFile = result.assets[0];
 
       const { updateData } = await uploadAvatar({
-        userId: `${userData?.user_id}`,
+        userId: userData?.user_id.toString() || "",
         file: pickedFile,
       });
 
@@ -128,7 +128,7 @@ const Profile = () => {
       }
       setUserData((prev: any) => ({ ...prev, avatar_url: "" }));
       await deleteAvatar({
-        userId: `${userData?.user_id}`,
+        userId: userData?.user_id,
       });
 
       Alert.alert("Успешно", "Профилната снимка е изтрита успешно");

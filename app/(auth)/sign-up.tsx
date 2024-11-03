@@ -24,7 +24,7 @@ const SignUp = () => {
 
   const signUpHandler = async () => {
     if (!form.username || !form.email || !form.password) {
-      Alert.alert("Error", "Please fill in all fields");
+      Alert.alert("Грешка", "Моля попълнете всички полета.");
       return;
     }
 

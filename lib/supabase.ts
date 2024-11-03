@@ -48,9 +48,6 @@ export const updateUserAuthData = async ({
     password: newPassword,
   });
 
-  console.log("what is data", data);
-  console.log("what is error", error);
-
   if (error) {
     throw new Error("Error updating user password");
   }
@@ -670,9 +667,6 @@ export const listingExists = async ({ listingId }: { listingId: string }) => {
     .select("listing_id")
     .eq("listing_id", listingId)
     .single();
-
-  console.log("data", data);
-  console.log("error", error);
 
   if (error || !data) {
     return false;

@@ -17,8 +17,7 @@ SplashScreen.preventAutoHideAsync();
 
 const queryClient = new QueryClient();
 
-const prefix = Linking.createURL("/");
-console.log("prefix", prefix);
+// const prefix = Linking.createURL("/");
 
 const RootLayout = () => {
   const [deepLinkHandled, setDeepLinkHandled] = useState(false);
@@ -40,41 +39,41 @@ const RootLayout = () => {
     if (fontsLoaded) SplashScreen.hideAsync();
   }, [fontsLoaded, error]);
 
-  useEffect(() => {
-    const handleDeepLink = (event: any) => {
-      let url = event.url;
-      const data = Linking.parse(url);
+  // useEffect(() => {
+  //   const handleDeepLink = (event: any) => {
+  //     let url = event.url;
+  //     const data = Linking.parse(url);
 
-      if (data.path === "reset-password" && !deepLinkHandled) {
-        console.log("into if");
-        console.log("what is data link", data);
+  //     if (data.path === "reset-password" && !deepLinkHandled) {
+  //       console.log("into if");
+  //       console.log("what is data link", data);
 
-        setTimeout(() => {
-          router.push({
-            pathname: "/reset-password",
-            params: {
-              token: data.queryParams?.token,
-              email: data.queryParams?.email,
-            },
-          });
-          setDeepLinkHandled(true);
+  //       setTimeout(() => {
+  //         router.push({
+  //           pathname: "/reset-password",
+  //           params: {
+  //             token: data.queryParams?.token,
+  //             email: data.queryParams?.email,
+  //           },
+  //         });
+  //         setDeepLinkHandled(true);
 
-          // url = null;
-          // data.path = null;
-        }, 100);
-      }
-    };
+  //         // url = null;
+  //         // data.path = null;
+  //       }, 100);
+  //     }
+  //   };
 
-    const subscription = Linking.addEventListener("url", handleDeepLink);
+  //   const subscription = Linking.addEventListener("url", handleDeepLink);
 
-    Linking.getInitialURL().then((url) => {
-      if (url && !deepLinkHandled) {
-        handleDeepLink({ url });
-      }
-    });
+  //   Linking.getInitialURL().then((url) => {
+  //     if (url && !deepLinkHandled) {
+  //       handleDeepLink({ url });
+  //     }
+  //   });
 
-    return () => subscription.remove();
-  }, [deepLinkHandled]);
+  //   return () => subscription.remove();
+  // }, [deepLinkHandled]);
 
   if (!fontsLoaded && !error) return null;
 

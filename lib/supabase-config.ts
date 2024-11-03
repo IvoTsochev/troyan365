@@ -14,23 +14,21 @@ const ExpoSecureStoreAdapter = {
     return SecureStore.getItemAsync(key);
   },
   setItem: (key: string, value: string) => {
-    console.log("what is value", value);
+    // const sessionData = JSON.parse(value);
+    // const minimalSessionData = {
+    //   access_token: sessionData.access_token,
+    //   refresh_token: sessionData.refresh_token,
+    //   expires_at: sessionData.expires_at,
+    //   userId: sessionData.user.id,
+    // };
+    // const minimalValue = JSON.stringify(minimalSessionData);
 
-    const sessionData = JSON.parse(value);
-    console.log("what is session data", sessionData);
+    // return SecureStore.setItemAsync(key, minimalValue);
 
-    const minimalSessionData = {
-      access_token: sessionData.access_token,
-      refresh_token: sessionData.refresh_token,
-      expires_at: sessionData.expires_at,
-      userId: sessionData.user.id,
-    };
-    const minimalValue = JSON.stringify(minimalSessionData);
-
-    return SecureStore.setItemAsync(key, minimalValue);
+    SecureStore.setItemAsync(key, value);
   },
   removeItem: (key: string) => {
-    SecureStore.deleteItemAsync(key);
+    return SecureStore.deleteItemAsync(key);
   },
 };
 
