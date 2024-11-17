@@ -73,12 +73,12 @@ const Profile = () => {
           handlePress={() => router.push("/sign-in")}
           containerStyles="w-1/2"
         />
-        {/* <TouchableOpacity
+        <TouchableOpacity
           onPress={() => router.push("/forgot-password")}
           className="mt-5"
         >
           <Text className="text-white text-xl">Забравена парола?</Text>
-        </TouchableOpacity> */}
+        </TouchableOpacity>
       </SafeAreaView>
     );
   }
