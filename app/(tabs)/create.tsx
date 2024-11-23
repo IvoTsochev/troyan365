@@ -150,7 +150,7 @@ const Create = () => {
   };
 
   return (
-    <SafeAreaView className="bg-primary h-full">
+    <SafeAreaView className="bg-primary h-full" edges={["top"]}>
       <KeyboardAwareScrollView className="px-4" extraHeight={120}>
         <Text className="text-2xl text-white font-pbold">Качи обява</Text>
 

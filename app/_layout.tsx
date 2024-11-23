@@ -13,8 +13,6 @@ Sentry.init({
   dsn: "https://f0be64d9941410ac6ca242259be80eba@o4508035960930304.ingest.de.sentry.io/4508035965124688",
 });
 
-// SplashScreen.preventAutoHideAsync();
-
 const queryClient = new QueryClient();
 
 // const prefix = Linking.createURL("/");

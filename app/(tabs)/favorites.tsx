@@ -27,7 +27,7 @@ const Favorites = () => {
   });
 
   return (
-    <SafeAreaView className="bg-primary h-full">
+    <SafeAreaView className="bg-primary h-full" edges={["top"]}>
       <FlatList
         data={myFavoritesData}
         keyExtractor={(item) => item?.listing_id}

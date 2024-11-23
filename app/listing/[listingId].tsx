@@ -71,16 +71,13 @@ const SingleListing = () => {
   const handleShareListing = async () => {
     try {
       const result = await Share.share({
-        message: `Check out this listing: ${listing?.title} - ${listing?.phone_number1}`,
+        message: `Виж тази публикация: ${listing?.title} - ${listing?.phone_number1}`,
       });
       if (result.action === Share.sharedAction) {
         if (result.activityType) {
-          console.log("Shared with activity type: ", result.activityType);
         } else {
-          console.log("Shared successfully");
         }
       } else if (result.action === Share.dismissedAction) {
-        console.log("Share dismissed");
       }
     } catch (error) {
       console.error("Error sharing the listing: ", error);

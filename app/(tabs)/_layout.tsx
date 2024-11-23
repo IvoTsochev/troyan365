@@ -16,7 +16,7 @@ const TabIcon = ({
   focused: boolean;
 }) => {
   return (
-    <View className="items-center justify-center gap-2">
+    <View className="items-center justify-center">
       <Image
         source={icon}
         resizeMode="contain"

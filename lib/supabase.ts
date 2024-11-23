@@ -660,8 +660,6 @@ export const deleteListing = async ({ listingId }: { listingId: string }) => {
 };
 
 export const listingExists = async ({ listingId }: { listingId: string }) => {
-  console.log("listingId", listingId);
-
   const { data, error } = await supabase
     .from(GLOBALS.TABLES.LISTINGS)
     .select("listing_id")
