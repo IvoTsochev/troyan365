@@ -78,7 +78,7 @@ const GlobalProvider = ({ children }: PropsWithChildren) => {
         setIsLogged(!!session);
       });
     } catch (error) {
-      console.log("Error fetching user session", error);
+      console.error("Error fetching user session", error);
     } finally {
       setLoading(false);
     }

@@ -150,9 +150,9 @@ const Create = () => {
   };
 
   return (
-    <SafeAreaView className="bg-primary h-full">
+    <SafeAreaView className="bg-primary h-full" edges={["top"]}>
       <KeyboardAwareScrollView className="px-4" extraHeight={120}>
-        <Text className="text-2xl text-white font-psemibold">Качи обява</Text>
+        <Text className="text-2xl text-white font-pbold">Качи обява</Text>
 
         <FormField
           title="Заглавие на обявата"
@@ -160,8 +160,7 @@ const Create = () => {
           handleChangeText={(e) => {
             setForm({ ...form, title: e });
           }}
-          otherStyles={`mt-10 
-          }`}
+          otherStyles="mt-10"
         />
 
         <FormField
@@ -170,8 +169,7 @@ const Create = () => {
           handleChangeText={(e) => {
             setForm({ ...form, description: e });
           }}
-          otherStyles={`mt-10 
-          }`}
+          otherStyles="mt-10"
         />
 
         <View className="mt-7 space-y-2">

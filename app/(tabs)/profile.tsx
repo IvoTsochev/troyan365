@@ -64,7 +64,10 @@ const Profile = () => {
 
   if (!userSession) {
     return (
-      <SafeAreaView className="bg-primary h-full justify-center items-center">
+      <SafeAreaView
+        className="bg-primary h-full justify-center items-center"
+        edges={["top"]}
+      >
         <Text className="text-white text-xl mb-4">
           Не сте влезли в профиле си
         </Text>

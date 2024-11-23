@@ -199,14 +199,11 @@ const ListingCard = ({
               )}
             </View>
             <View className="justify-center flex-1 ml-3 gap-y-1">
-              <Text
-                className="text-white font-psemibold text-sm"
-                numberOfLines={1}
-              >
+              <Text className="text-white font-pbold text-lg" numberOfLines={1}>
                 {title}
               </Text>
               <Text
-                className="text-xs text-gray-100 font-pregular"
+                className="text-sm text-gray-100 font-pregular"
                 numberOfLines={1}
               >
                 {listingCreator?.username}

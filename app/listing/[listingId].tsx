@@ -71,16 +71,13 @@ const SingleListing = () => {
   const handleShareListing = async () => {
     try {
       const result = await Share.share({
-        message: `Check out this listing: ${listing?.title} - ${listing?.phone_number1}`,
+        message: `Виж тази публикация: ${listing?.title} - ${listing?.phone_number1}`,
       });
       if (result.action === Share.sharedAction) {
         if (result.activityType) {
-          console.log("Shared with activity type: ", result.activityType);
         } else {
-          console.log("Shared successfully");
         }
       } else if (result.action === Share.dismissedAction) {
-        console.log("Share dismissed");
       }
     } catch (error) {
       console.error("Error sharing the listing: ", error);
@@ -136,10 +133,10 @@ const SingleListing = () => {
         </View>
       ) : (
         <View className="w-full px-3">
-          <Text className="text-red-500 text-center font-psemibold text-sm">
+          <Text className="text-red-500 text-center font-pbold text-sm">
             {!listing?.is_active && "Обявата е деактивирана"}
           </Text>
-          <Text className="text-white mb-3 text-center font-psemibold text-2xl">
+          <Text className="text-white mb-3 text-center font-pbold text-2xl">
             {listing?.title}
           </Text>
           <View className="h-60 border-2 border-white/20 rounded-xl">
@@ -165,7 +162,7 @@ const SingleListing = () => {
           <View>
             {listing?.description ? (
               <View className="border-2 border-white/20 rounded-xl mt-3 p-3">
-                <Text className="text-white font-psemibold text-2xl">
+                <Text className="text-white font-pbold text-2xl">
                   Описание:
                 </Text>
                 <Text className="text-white font-pregular text-lg">

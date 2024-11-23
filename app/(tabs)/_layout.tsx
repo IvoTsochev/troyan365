@@ -1,11 +1,22 @@
+import React, { Fragment } from "react";
 import { Text, View, Image } from "react-native";
-import { Tabs, Redirect } from "expo-router";
+import { Tabs } from "expo-router";
 import { icons } from "../../constants";
 import { StatusBar } from "expo-status-bar";
 
-const TabIcon = ({ icon, color, name, focused }) => {
+const TabIcon = ({
+  icon,
+  color,
+  name,
+  focused,
+}: {
+  icon: string;
+  color: string;
+  name?: string;
+  focused: boolean;
+}) => {
   return (
-    <View className="items-center justify-center gap-2">
+    <View className="items-center justify-center">
       <Image
         source={icon}
         resizeMode="contain"
@@ -13,10 +24,14 @@ const TabIcon = ({ icon, color, name, focused }) => {
         className="w-6 h-6"
       />
       <Text
-        className={`${focused ? "font-psemibold" : "font-pregular"} text-xs`}
+        className={`
+          ${focused ? "font-pbold" : "font-pregular"} 
+          text-xs 
+          w-full
+          `}
         style={{ color: color }}
       >
-        {name}
+        {name && name}
       </Text>
     </View>
   );
@@ -24,11 +39,11 @@ const TabIcon = ({ icon, color, name, focused }) => {
 
 const TabsLayout = (props) => {
   return (
-    <>
+    <Fragment>
       <StatusBar style="light" />
       <Tabs
         screenOptions={{
-          tabBarShowLabel: false,
+          tabBarShowLabel: true,
           tabBarActiveTintColor: "#FFA001",
           tabBarInactiveTintColor: "#CDCDE0",
           tabBarStyle: {
@@ -36,71 +51,56 @@ const TabsLayout = (props) => {
             borderTopWidth: 1,
             borderTopColor: "#232533",
             height: 84,
+            paddingTop: 12,
+          },
+          tabBarLabelStyle: {
+            fontFamily: "Ubuntu-Bold",
+            fontSize: 12,
           },
         }}
       >
         <Tabs.Screen
           name="home"
           options={{
-            title: "Home",
+            title: "Начало",
             headerShown: false,
             tabBarIcon: ({ color, focused }) => (
-              <TabIcon
-                icon={icons.home}
-                color={color}
-                name="Начало"
-                focused={focused}
-              />
+              <TabIcon icon={icons.home} color={color} focused={focused} />
             ),
           }}
         />
         <Tabs.Screen
           name="favorites"
           options={{
-            title: "Favorites",
+            title: "Любими",
             headerShown: false,
             tabBarIcon: ({ color, focused }) => (
-              <TabIcon
-                icon={icons.bookmark}
-                color={color}
-                name="Любими"
-                focused={focused}
-              />
+              <TabIcon icon={icons.bookmark} color={color} focused={focused} />
             ),
           }}
         />
         <Tabs.Screen
           name="create"
           options={{
-            title: "Create",
+            title: "Публикувай",
             headerShown: false,
             tabBarIcon: ({ color, focused }) => (
-              <TabIcon
-                icon={icons.plus}
-                color={color}
-                name="Публикувай"
-                focused={focused}
-              />
+              <TabIcon icon={icons.plus} color={color} focused={focused} />
             ),
           }}
         />
         <Tabs.Screen
           name="profile"
           options={{
-            title: "Profile",
+            title: "Профил",
             headerShown: false,
             tabBarIcon: ({ color, focused }) => (
-              <TabIcon
-                icon={icons.profile}
-                color={color}
-                name="Профил"
-                focused={focused}
-              />
+              <TabIcon icon={icons.profile} color={color} focused={focused} />
             ),
           }}
         />
       </Tabs>
-    </>
+    </Fragment>
   );
 };
 

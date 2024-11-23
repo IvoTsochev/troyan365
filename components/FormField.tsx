@@ -28,7 +28,7 @@ const FormField = ({
 
       <View className="w-full px-4 bg-black-100 rounded-2xl border-2 border-black-200 focus:border-secondary flex flex-row items-center">
         <TextInput
-          className={`flex-1 text-white font-psemibold text-base h-16 ${
+          className={`flex-1 text-white font-pbold text-base h-16 ${
             title === "Описание" ? "h-56" : ""
           }`}
           value={value}

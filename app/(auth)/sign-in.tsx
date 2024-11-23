@@ -96,11 +96,11 @@ const SignIn = () => {
               resizeMode="contain"
               className="w-[50px] h-[35px]"
             />
-            <Text className="text-2xl text-white font-pextrabold">
+            <Text className="text-2xl text-white font-pbold">
               Троян Бизнеси
             </Text>
           </View>
-          <Text className="text-2xl text-white text-semibold mt-10 font-psemibold">
+          <Text className="text-2xl text-white text-semibold mt-10 font-pbold">
             Влез в профила си
           </Text>
           <FormField
@@ -128,10 +128,7 @@ const SignIn = () => {
             <Text className="text-lg text-gray-100 font-pregular">
               Нямаш профил?
             </Text>
-            <Link
-              href="/sign-up"
-              className="text-lg font-psemibold text-secondary"
-            >
+            <Link href="/sign-up" className="text-lg font-pbold text-secondary">
               Създай сега
             </Link>
           </View>

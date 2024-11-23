@@ -11,7 +11,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 // Components
 import SearchInput from "../../components/SearchInput";
-import Trending from "../../components/Trending";
 import EmptyState from "../../components/EmptyState";
 import ListingCard from "../../components/ListingCard";
 // Constants
@@ -38,7 +37,7 @@ const Home = () => {
         setListingsData(data);
       }
     } catch (error: any) {
-      console.log("Error fetching listings", error.message);
+      console.error("Error fetching listings", error.message);
     } finally {
       setRefreshing(false);
     }
@@ -84,20 +83,20 @@ const Home = () => {
   };
 
   return (
-    <SafeAreaView className="bg-primary h-full">
+    <SafeAreaView className="bg-primary h-full" edges={["top"]}>
       <FlatList
         data={listingsData}
         keyExtractor={(item) => item.listing_id}
         renderItem={({ item }) => <ListingCard listing={item} />}
         ListHeaderComponent={() => (
-          <View className="my-6 px-4 space-y-6">
+          <View className="mt-6 px-4 space-y-6">
             <View className="justify-between items-start flex-row mb-6">
               <View>
-                <Text className="font-pmedium text-sm text-gray-100 py-3">
+                <Text className="font-pbold text-lg text-gray-100 py-3">
                   Добре дошъл
                 </Text>
                 {userData?.username && (
-                  <Text className="text-2xl font-psemibold text-white">
+                  <Text className="text-2xl font-pbold text-white">
                     {userData?.username}
                   </Text>
                 )}
@@ -122,16 +121,7 @@ const Home = () => {
                 )}
               </View>
             </View>
-
             <SearchInput />
-
-            <View className="w-full flex-1 pt-5 pb-8">
-              <Text className="text-gray-100 text-lg font-pregular mb-3">
-                Последни публикации
-              </Text>
-
-              <Trending posts={listingsData ?? []} />
-            </View>
           </View>
         )}
         ListEmptyComponent={() => (

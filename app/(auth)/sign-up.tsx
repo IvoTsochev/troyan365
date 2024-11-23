@@ -62,11 +62,11 @@ const SignUp = () => {
                 resizeMode="contain"
                 className="w-[50px] h-[35px]"
               />
-              <Text className="text-2xl text-white font-pextrabold">
+              <Text className="text-2xl text-white font-pbold">
                 Троян Бизнеси
               </Text>
             </View>
-            <Text className="text-2xl text-white mt-10 text-semibold font-psemibold">
+            <Text className="text-2xl text-white mt-10 text-semibold font-pbold">
               Създай профил
             </Text>
 
@@ -104,7 +104,7 @@ const SignUp = () => {
               </Text>
               <Link
                 href="/sign-in"
-                className="text-lg font-psemibold text-secondary"
+                className="text-lg font-pbold text-secondary"
               >
                 Влез
               </Link>
