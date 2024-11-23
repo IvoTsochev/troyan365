@@ -19,7 +19,7 @@ const EmptyState = ({ title, subtitle, showButton = true }: PropTypes) => {
         className="w-[270px] h-[215px]"
         resizeMode="contain"
       />
-      <Text className="text-xl text-center font-psemibold text-white mt-2">
+      <Text className="text-xl text-center font-pbold text-white mt-2">
         {title}
       </Text>
       <Text className="font-pmedium text-sm text-gray-100">{subtitle}</Text>

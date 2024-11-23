@@ -178,9 +178,7 @@ const Edit = () => {
   return (
     <SafeAreaView className="bg-primary h-full">
       <KeyboardAwareScrollView className="px-4" extraHeight={120}>
-        <Text className="text-2xl text-white font-psemibold">
-          Редактирай обява
-        </Text>
+        <Text className="text-2xl text-white font-pbold">Редактирай обява</Text>
 
         <FormField
           title="Заглавие на обявата"

@@ -2,7 +2,6 @@ import React from "react";
 import { ActivityIndicator } from "react-native";
 import { Redirect } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import "./global.css";
 
 import { useGlobalContext } from "../context/GlobalProvider";
 

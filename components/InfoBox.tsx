@@ -16,7 +16,7 @@ const InfoBox = ({
 }: PropTypes) => {
   return (
     <View className={containerStyle}>
-      <Text className={`text-white text-center font-psemibold ${titleStyles}`}>
+      <Text className={`text-white text-center font-pbold ${titleStyles}`}>
         {title}
       </Text>
       <Text className="text-sm text-gray-100 text-center font-pregular">

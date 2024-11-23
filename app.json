@@ -5,13 +5,14 @@
     "description": "Троян Бизнеси където всеки бизнес може да си публикува дейноста и да може бързо и лесно да бъде намерен",
     "scheme": "team.headless.troyanbiznesi",
     "version": "1.0.0",
+    "newArchEnabled": true,
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#161622"
     },
     "ios": {
       "buildNumber": "1.0.0",
