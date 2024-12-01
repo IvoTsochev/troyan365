@@ -3,10 +3,10 @@ import * as SecureStore from "expo-secure-store";
 import { createClient } from "@supabase/supabase-js";
 import { Database } from "@/database.types";
 import {
-  CLOUD_SUPABASE_URL,
-  CLOUD_ANON_KEY,
-  LINODE_SUPABASE_URL,
-  LINODE_ANON_KEY,
+  EXPO_PUBLIC_CLOUD_SUPABASE_URL,
+  EXPO_PUBLIC_CLOUD_ANON_KEY,
+  EXPO_PUBLIC_LINODE_SUPABASE_URL,
+  EXPO_PUBLIC_LINODE_ANON_KEY,
 } from "@env";
 
 const ExpoSecureStoreAdapter = {
@@ -33,12 +33,12 @@ const ExpoSecureStoreAdapter = {
 };
 
 // CLOUD
-const supabaseUrl = CLOUD_SUPABASE_URL;
-const supabaseAnonKey = CLOUD_ANON_KEY;
+const supabaseUrl = EXPO_PUBLIC_CLOUD_SUPABASE_URL;
+const supabaseAnonKey = EXPO_PUBLIC_CLOUD_ANON_KEY;
 
 // SELF-HOSTED
-// const supabaseUrl = LINODE_SUPABASE_URL;
-// const supabaseAnonKey = LINODE_ANON_KEY;
+// const supabaseUrl = EXPO_PUBLIC_LINODE_SUPABASE_URL;
+// const supabaseAnonKey = EXPO_PUBLIC_LINODE_ANON_KEY;
 
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
   auth: {
