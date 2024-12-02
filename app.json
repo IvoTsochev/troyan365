@@ -38,6 +38,7 @@
         "@sentry/react-native/expo",
         {
           "url": "https://sentry.io/",
+          "note": "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",
           "project": "troyan365",
           "organization": "headless-team"
         }
