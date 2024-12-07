@@ -9,6 +9,7 @@ type PropTypes = {
   placeholder?: string;
   handleChangeText: (text: string) => void;
   otherStyles?: string;
+  accessibilityLabel?: string;
   keyboardType?: "default" | "email-address" | "numeric" | "phone-pad";
 };
 
@@ -18,6 +19,7 @@ const FormField = ({
   placeholder,
   handleChangeText,
   otherStyles,
+  accessibilityLabel,
   ...props
 }: PropTypes) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -37,6 +39,7 @@ const FormField = ({
           onChangeText={handleChangeText}
           secureTextEntry={title === "Парола" && !showPassword}
           multiline={title === "Описание"}
+          accessibilityLabel={accessibilityLabel || title}
           {...props}
         />
 
@@ -44,7 +47,7 @@ const FormField = ({
           <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
             <Image
               source={!showPassword ? icons.eye : icons.eyeHide}
-              className="w-6 h-6"
+              className="size-8"
               resizeMode="contain"
             />
           </TouchableOpacity>

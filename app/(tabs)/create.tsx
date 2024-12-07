@@ -161,6 +161,7 @@ const Create = () => {
             setForm({ ...form, title: e });
           }}
           otherStyles="mt-10"
+          accessibilityLabel="Заглавие на обявата"
         />
 
         <FormField
@@ -170,6 +171,7 @@ const Create = () => {
             setForm({ ...form, description: e });
           }}
           otherStyles="mt-10"
+          accessibilityLabel="Описание на обявата"
         />
 
         <View className="mt-7 space-y-2">
@@ -208,6 +210,7 @@ const Create = () => {
             setForm({ ...form, phone_number1: e });
           }}
           otherStyles="mt-7"
+          accessibilityLabel="Телефон за връзка"
         />
         <CustomButton
           title={

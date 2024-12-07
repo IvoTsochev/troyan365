@@ -188,6 +188,7 @@ const Edit = () => {
           }}
           otherStyles={`mt-10 
           }`}
+          accessibilityLabel="Заглавие на обявата"
         />
 
         <FormField
@@ -198,6 +199,7 @@ const Edit = () => {
           }}
           otherStyles={`mt-10 
           }`}
+          accessibilityLabel="Описание на обявата"
         />
 
         <View className="mt-7 space-y-2">
@@ -243,6 +245,7 @@ const Edit = () => {
             setListing({ ...listing, phone_number1: e });
           }}
           otherStyles="mt-7"
+          accessibilityLabel="Телефон за връзка"
         />
 
         <CustomButton

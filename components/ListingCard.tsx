@@ -214,6 +214,7 @@ const ListingCard = ({
           <TouchableOpacity
             className="p-4 mr-3"
             onPress={toggleFavoritesHandler}
+            accessibilityLabel="Добави/Премахни в любими"
           >
             <HeartIcon
               className="w-5 h-5"

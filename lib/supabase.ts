@@ -126,7 +126,7 @@ export const signIn = async (email: string, password: string) => {
   });
 
   if (error) {
-    throw new Error("Invalid credentials. Please try again.");
+    throw new Error("Грешен имейл или парола. Моля, опитайте отново.");
   }
 
   return {
