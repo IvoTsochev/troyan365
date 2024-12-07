@@ -37,7 +37,7 @@ const SingleListing = () => {
     navigation.setOptions({
       headerRight: () => (
         <TouchableOpacity onPress={showOptionActionSheet}>
-          <Icon name="more-vert" size={24} color="#FF9C01" />
+          <Icon name="more-vert" size={40} color="#FF9C01" />
         </TouchableOpacity>
       ),
     });

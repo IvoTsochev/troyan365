@@ -78,9 +78,9 @@ const Profile = () => {
         />
         <TouchableOpacity
           onPress={() => router.push("/forgot-password")}
-          className="mt-5"
+          className="mt-8"
         >
-          <Text className="text-white text-xl">Забравена парола?</Text>
+          <Text className="text-white text-2xl">Забравена парола?</Text>
         </TouchableOpacity>
       </SafeAreaView>
     );
@@ -159,7 +159,7 @@ const Profile = () => {
             >
               <Image
                 source={icons.logout}
-                className="w-6 h-6"
+                className="size-8"
                 resizeMode="contain"
               />
             </TouchableOpacity>
@@ -172,6 +172,7 @@ const Profile = () => {
                     }}
                     className="w-[90%] h-[90%] rounded-lg"
                     resizeMode="cover"
+                    accessibilityLabel="Профилна снимка"
                   />
                 )}
               </View>

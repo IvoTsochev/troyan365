@@ -22,26 +22,27 @@ const SearchInput = ({ initialQuery }: PropTypes) => {
   return (
     <View className="flex flex-row items-center space-x-4 w-full h-16 px-4 bg-black-100 rounded-2xl border-2 border-black-200 focus:border-secondary">
       <TextInput
-        className="text-base mt-0.5 text-white flex-1 font-pregular"
+        className="mt-0.5 text-white flex-1 font-pregular h-full text-xl align-middle"
         value={query}
         placeholder="Потърси обяви"
         placeholderTextColor="#CDCDE0"
         onChangeText={(e) => setQuery(e)}
+        accessibilityLabel="търси обяви"
       />
 
       <TouchableOpacity
         onPress={() => {
           if (!query)
             return Alert.alert(
-              "Missing query",
-              "Please input something to search results across database"
+              "Внимание",
+              "Моля въведете ключова дума за търсене"
             );
 
           if (pathname.startsWith("/search")) router.setParams({ query });
           else router.push(`/search/${query}`);
         }}
       >
-        <Image source={icons.search} className="w-5 h-5" resizeMode="contain" />
+        <Image source={icons.search} className="size-8" resizeMode="contain" />
       </TouchableOpacity>
     </View>
   );

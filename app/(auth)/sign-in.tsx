@@ -109,12 +109,14 @@ const SignIn = () => {
             handleChangeText={(e) => setForm({ ...form, email: e })}
             otherStyles="mt-7"
             keyboardType="email-address"
+            accessibilityLabel="email"
           />
           <FormField
             title="Парола"
             value={form.password}
             handleChangeText={(e) => setForm({ ...form, password: e })}
             otherStyles="mt-7"
+            accessibilityLabel="Парола"
           />
 
           <CustomButton

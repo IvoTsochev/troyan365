@@ -67,6 +67,7 @@ const TabsLayout = (props) => {
             tabBarIcon: ({ color, focused }) => (
               <TabIcon icon={icons.home} color={color} focused={focused} />
             ),
+            tabBarAccessibilityLabel: "Начало",
           }}
         />
         <Tabs.Screen
@@ -77,6 +78,7 @@ const TabsLayout = (props) => {
             tabBarIcon: ({ color, focused }) => (
               <TabIcon icon={icons.bookmark} color={color} focused={focused} />
             ),
+            tabBarAccessibilityLabel: "Любими",
           }}
         />
         <Tabs.Screen
@@ -87,6 +89,7 @@ const TabsLayout = (props) => {
             tabBarIcon: ({ color, focused }) => (
               <TabIcon icon={icons.plus} color={color} focused={focused} />
             ),
+            tabBarAccessibilityLabel: "Публикувай",
           }}
         />
         <Tabs.Screen
@@ -97,6 +100,7 @@ const TabsLayout = (props) => {
             tabBarIcon: ({ color, focused }) => (
               <TabIcon icon={icons.profile} color={color} focused={focused} />
             ),
+            tabBarAccessibilityLabel: "Профил",
           }}
         />
       </Tabs>
