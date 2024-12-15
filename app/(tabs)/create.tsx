@@ -149,6 +149,23 @@ const Create = () => {
     }
   };
 
+  if (!userSession) {
+    return (
+      <SafeAreaView className="bg-primary h-full flex justify-center items-center px-4">
+        <Text className="text-white text-xl mb-4 font-pbold">
+          Влез, за да качиш обява
+        </Text>
+        <View className="w-full">
+          <CustomButton
+            title="Влез"
+            handlePress={() => router.push("/sign-in")}
+            containerStyles="mt-7"
+          />
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView className="bg-primary h-full" edges={["top"]}>
       <KeyboardAwareScrollView className="px-4" extraHeight={120}>
@@ -213,16 +230,8 @@ const Create = () => {
           accessibilityLabel="Телефон за връзка"
         />
         <CustomButton
-          title={
-            userSession && uploading
-              ? "Публикуване..."
-              : userSession
-              ? "Публикувай обява"
-              : "Влез"
-          }
-          handlePress={
-            userSession ? createListingHandler : () => router.push("/sign-in")
-          }
+          title={uploading ? "Публикуване..." : "Публикувай обява"}
+          handlePress={createListingHandler}
           containerStyles="mt-7"
           isLoading={uploading}
         />

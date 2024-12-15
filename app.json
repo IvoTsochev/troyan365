@@ -4,7 +4,7 @@
     "slug": "troyan-biznesi",
     "description": "Троян Бизнеси където всеки бизнес може да си публикува дейността и да може бързо и лесно да бъде намерен.",
     "scheme": "team.headless.troyanskibiznesi",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "newArchEnabled": true,
     "orientation": "portrait",
     "icon": "./assets/icon.png",

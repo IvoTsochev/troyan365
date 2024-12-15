@@ -65,17 +65,18 @@ const Profile = () => {
   if (!userSession) {
     return (
       <SafeAreaView
-        className="bg-primary h-full justify-center items-center"
+        className="bg-primary h-full justify-center items-center px-4"
         edges={["top"]}
       >
         <Text className="text-white text-xl mb-4">
           Не сте влезли в профиле си
         </Text>
-        <CustomButton
-          title="Влез"
-          handlePress={() => router.push("/sign-in")}
-          containerStyles="w-1/2"
-        />
+        <View className="w-full">
+          <CustomButton
+            title="Влез"
+            handlePress={() => router.push("/sign-in")}
+          />
+        </View>
         <TouchableOpacity
           onPress={() => router.push("/forgot-password")}
           className="mt-8"
